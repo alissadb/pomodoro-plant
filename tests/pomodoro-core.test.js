@@ -49,11 +49,11 @@ test("next mode cycles with long break every 4th focus", () => {
 });
 
 test("plant selection normalizes to known values", () => {
-  assert.equal(normalizePlantId("monstera"), "monstera");
-  assert.equal(normalizePlantId("strelitzia"), "strelitzia");
+  assert.equal(normalizePlantId("snake"), "snake");
+  assert.equal(normalizePlantId("zz"), "zz");
   assert.equal(normalizePlantId("begonia"), "begonia");
-  assert.equal(normalizePlantId("unknown"), "monstera");
-  assert.equal(normalizePlantId(""), "monstera");
+  assert.equal(normalizePlantId("unknown"), "snake");
+  assert.equal(normalizePlantId(""), "snake");
   assert.equal(Object.keys(PLANTS).length, 3);
 });
 
@@ -135,8 +135,8 @@ test("plant family normalization", () => {
 
 test("PLANTS constant has expected entries", () => {
   assert.equal(Object.keys(PLANTS).length, 3);
-  assert.ok(PLANTS.monstera.includes("Monstera"));
-  assert.ok(PLANTS.strelitzia.includes("Strelitzia"));
+  assert.ok(PLANTS.snake.includes("Snake"));
+  assert.ok(PLANTS.zz.includes("ZZ"));
   assert.ok(PLANTS.begonia.includes("Begonia"));
 });
 

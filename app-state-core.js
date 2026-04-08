@@ -7,24 +7,30 @@ import {
   clamp,
 } from "./pomodoro-core.js";
 
+function toIntOrFallback(value, fallback) {
+  return Number.isFinite(value) ? Math.floor(value) : fallback;
+}
+
+function toNonNegativeIntOrFallback(value, fallback = 0) {
+  return Math.max(0, toIntOrFallback(value, fallback));
+}
+
+function toBoundedIntOrFallback(value, min, max, fallback) {
+  return clamp(toIntOrFallback(value, fallback), min, max);
+}
+
 export function sanitizeState(parsed, nowMs = Date.now(), historyLimit = 8) {
   const safe = {
     mode: MODES[parsed?.mode] ? parsed.mode : "focus",
-    remainingSeconds: Number.isFinite(parsed?.remainingSeconds) ? Math.floor(parsed.remainingSeconds) : MODES.focus.seconds,
+    remainingSeconds: toIntOrFallback(parsed?.remainingSeconds, MODES.focus.seconds),
     isRunning: Boolean(parsed?.isRunning),
     endTime: Number.isFinite(parsed?.endTime) ? parsed.endTime : null,
-    focusSessionsCompleted: Number.isFinite(parsed?.focusSessionsCompleted)
-      ? Math.max(0, Math.floor(parsed.focusSessionsCompleted))
-      : 0,
-    focusedMinutesTotal: Number.isFinite(parsed?.focusedMinutesTotal)
-      ? Math.max(0, Math.floor(parsed.focusedMinutesTotal))
-      : 0,
+    focusSessionsCompleted: toNonNegativeIntOrFallback(parsed?.focusSessionsCompleted),
+    focusedMinutesTotal: toNonNegativeIntOrFallback(parsed?.focusedMinutesTotal),
     history: Array.isArray(parsed?.history) ? parsed.history.slice(0, historyLimit) : [],
     selectedPlantId: normalizePlantId(parsed?.selectedPlantId),
-    streak: Number.isFinite(parsed?.streak) ? Math.max(0, Math.floor(parsed.streak)) : 0,
-    lastCompletedStage: Number.isFinite(parsed?.lastCompletedStage)
-      ? clamp(Math.floor(parsed.lastCompletedStage), 1, 5)
-      : 1,
+    streak: toNonNegativeIntOrFallback(parsed?.streak),
+    lastCompletedStage: toBoundedIntOrFallback(parsed?.lastCompletedStage, 1, 5, 1),
     hasDismissedNotificationPrompt: Boolean(parsed?.hasDismissedNotificationPrompt),
     roundGoal: normalizeRoundGoal(parsed?.roundGoal ?? DEFAULT_ROUND_GOAL),
   };

@@ -16,8 +16,37 @@ import {
   applySkipInterval,
   switchPlantPreservingProgress,
 } from "./app-state-core.js";
+import { createStateStorage } from "./state-storage.js";
+import { createTimerController } from "./timer-controller.js";
+import {
+  requestNotificationPermission,
+  announceIntervalComplete as announceIntervalCompleteUi,
+} from "./notifications.js";
+import { getPlantSvg } from "./plant-renderer.js";
+import { setupQATestingControls } from "./qa-testing.js";
 
-const STORAGE_KEY = "monstera-pomodoro-state-v4";
+const STORAGE_KEY = "pomodoro-plant-state-v5";
+const HISTORY_LIMIT = 8;
+const DEFAULT_PLANT_ID = "snake";
+const MODE_CLASS = {
+  focus: "mode-focus",
+  short: "mode-short",
+  long: "mode-long",
+};
+const INTERVAL_COMPLETION = {
+  focus: {
+    historyLabel: "Focus complete",
+    notification: "Focus session complete. Time for a break.",
+  },
+  short: {
+    historyLabel: "Short break complete",
+    notification: "Short break complete. Ready to focus again?",
+  },
+  long: {
+    historyLabel: "Long break complete",
+    notification: "Long break complete. Time to focus.",
+  },
+};
 
 const els = {
   timerDisplay: document.getElementById("timerDisplay"),
@@ -48,36 +77,31 @@ let state = {
   focusSessionsCompleted: 0,
   focusedMinutesTotal: 0,
   history: [],
-  selectedPlantId: "monstera",
+  selectedPlantId: DEFAULT_PLANT_ID,
   streak: 0,
   lastCompletedStage: 1,
   roundGoal: DEFAULT_ROUND_GOAL,
 };
 
-let timerId = null;
+const storage = createStateStorage(STORAGE_KEY, 500);
 
-function hashStringToSeed(input) {
-  let h = 2166136261;
-  for (let i = 0; i < input.length; i += 1) {
-    h ^= input.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-
-function mulberry32(seed) {
-  return function random() {
-    let t = (seed += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+const timerController = createTimerController({
+  now: () => Date.now(),
+  getState: () => state,
+  onTick: (remainingSeconds) => {
+    state.remainingSeconds = remainingSeconds;
+    renderTimer();
+  },
+  onElapsed: () => {
+    state.isRunning = false;
+    state.endTime = null;
+    completeCurrentInterval();
+  },
+  intervalMs: 250,
+});
 
 function getModeClass(mode) {
-  if (mode === "focus") return "mode-focus";
-  if (mode === "short") return "mode-short";
-  return "mode-long";
+  return MODE_CLASS[mode] ?? MODE_CLASS.long;
 }
 
 function applyModeTheme() {
@@ -86,27 +110,21 @@ function applyModeTheme() {
   els.modePill.textContent = MODES[state.mode].label;
 }
 
-let saveTimeout;
-
 function saveState() {
-  clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, 500);
+  storage.saveDebounced(state);
 }
 
 function saveStateImmediate() {
-  clearTimeout(saveTimeout);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  storage.saveImmediate(state);
 }
 
 function restoreState() {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = storage.loadRaw();
   if (!raw) return;
 
   try {
     const parsed = JSON.parse(raw);
-    const { state: restored, shouldCompleteInterval } = sanitizeState(parsed, Date.now(), 8);
+    const { state: restored, shouldCompleteInterval } = sanitizeState(parsed, Date.now(), HISTORY_LIMIT);
     state = {
       ...state,
       ...restored,
@@ -116,7 +134,7 @@ function restoreState() {
       completeCurrentInterval(true);
     }
   } catch {
-    localStorage.removeItem(STORAGE_KEY);
+    storage.clear();
   }
 }
 
@@ -142,8 +160,7 @@ function renderGrowth() {
   els.stageLabel.textContent = `Stage: ${STAGE_LABELS[stage]}`;
   els.plantVisual.dataset.stage = String(stage);
   els.plantVisual.style.setProperty("--growth-factor", String(progress / 100));
-  
-  // Celebration animation at 100%
+
   if (progress >= 100 && state.focusedMinutesTotal > 0) {
     els.plantVisual.classList.add("fully-grown");
   } else {
@@ -161,12 +178,11 @@ function renderTimer() {
   els.streakValue.textContent = `${state.streak}`;
   els.startPauseBtn.textContent = state.isRunning ? "Pause" : "Start";
   els.startPauseBtn.setAttribute("aria-pressed", state.isRunning ? "true" : "false");
-  
-  // Update document title for tab visibility
+
   const modeLabel = MODES[state.mode].label;
-  document.title = state.isRunning 
+  document.title = state.isRunning
     ? `${timeStr} - ${modeLabel} - Pomodoro Garden`
-    : `Pomodoro Garden`;
+    : "Pomodoro Garden";
 }
 
 function render() {
@@ -180,48 +196,11 @@ function render() {
 function addHistory(label) {
   const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   state.history.unshift({ label, time });
-  state.history = state.history.slice(0, 8);
+  state.history = state.history.slice(0, HISTORY_LIMIT);
 }
 
-function requestNotificationPermission() {
-  if (!("Notification" in window)) return;
-  if (Notification.permission === "default") {
-    Notification.requestPermission().catch(() => {});
-  }
-}
-
-function notify(message) {
-  if (!("Notification" in window)) return;
-  if (Notification.permission === "granted") {
-    new Notification("Pomodoro Plant", { body: message });
-  }
-}
-
-function playChime() {
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) return;
-
-  const ctx = new AudioContextClass();
-  const now = ctx.currentTime;
-  const sequence = [659.25, 783.99, 987.77];
-
-  sequence.forEach((frequency, index) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.value = frequency;
-    gain.gain.setValueAtTime(0.0001, now + index * 0.16);
-    gain.gain.exponentialRampToValueAtTime(0.18, now + index * 0.16 + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.16 + 0.14);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(now + index * 0.16);
-    osc.stop(now + index * 0.16 + 0.16);
-  });
-
-  setTimeout(() => {
-    ctx.close().catch(() => {});
-  }, 1200);
+function announceIntervalComplete(message) {
+  announceIntervalCompleteUi(els.timerDisplay, message);
 }
 
 function setMode(mode) {
@@ -241,38 +220,23 @@ function handleStageReward() {
 
 function completeCurrentInterval(fromRestore = false) {
   const completedMode = state.mode;
+  const completion = INTERVAL_COMPLETION[completedMode];
 
   if (completedMode === "focus") {
     state = {
       ...state,
       ...applyFocusCompletion(state),
     };
-    addHistory("Focus complete");
+    addHistory(completion.historyLabel);
     handleStageReward();
     els.plantVisual.classList.add("growth-bump");
     setTimeout(() => els.plantVisual.classList.remove("growth-bump"), 520);
-    if (!fromRestore) {
-      notify("Focus session complete. Time for a break.");
-      playChime();
-      els.timerDisplay.classList.add('completed');
-      setTimeout(() => els.timerDisplay.classList.remove('completed'), 600);
-    }
-  } else if (completedMode === "short") {
-    addHistory("Short break complete");
-    if (!fromRestore) {
-      notify("Short break complete. Ready to focus again?");
-      playChime();
-      els.timerDisplay.classList.add('completed');
-      setTimeout(() => els.timerDisplay.classList.remove('completed'), 600);
-    }
   } else {
-    addHistory("Long break complete");
-    if (!fromRestore) {
-      notify("Long break complete. Time to focus.");
-      playChime();
-      els.timerDisplay.classList.add('completed');
-      setTimeout(() => els.timerDisplay.classList.remove('completed'), 600);
-    }
+    addHistory(completion.historyLabel);
+  }
+
+  if (!fromRestore && completion) {
+    announceIntervalComplete(completion.notification);
   }
 
   setMode(getNextMode(state.mode, state.focusSessionsCompleted));
@@ -280,34 +244,12 @@ function completeCurrentInterval(fromRestore = false) {
   render();
 }
 
-function stopTicker() {
-  if (timerId) {
-    clearInterval(timerId);
-    timerId = null;
-  }
-}
-
-function tick() {
-  if (!state.isRunning || !state.endTime) return;
-  const remaining = Math.max(0, Math.ceil((state.endTime - Date.now()) / 1000));
-  state.remainingSeconds = remaining;
-  renderTimer();
-
-  if (remaining <= 0) {
-    stopTicker();
-    state.isRunning = false;
-    state.endTime = null;
-    completeCurrentInterval();
-  }
-}
-
 function startTimer() {
   if (state.isRunning) return;
   requestNotificationPermission();
-  updateNotificationPrompt();
   state.isRunning = true;
   state.endTime = Date.now() + state.remainingSeconds * 1000;
-  timerId = setInterval(tick, 250);
+  timerController.start();
   saveState();
   renderTimer();
 }
@@ -317,7 +259,7 @@ function pauseTimer() {
   state.remainingSeconds = Math.max(0, Math.ceil((state.endTime - Date.now()) / 1000));
   state.isRunning = false;
   state.endTime = null;
-  stopTicker();
+  timerController.stop();
   saveState();
   renderTimer();
 }
@@ -348,10 +290,10 @@ function skipCurrentInterval() {
 
 function resetPlantGrowth() {
   const confirmed = confirm(
-    'Reset all growth progress? This will clear your focused minutes, sessions, and history. This cannot be undone.'
+    "Reset all growth progress? This will clear your focused minutes, sessions, and history. This cannot be undone."
   );
   if (!confirmed) return;
-  
+
   state.focusedMinutesTotal = 0;
   state.focusSessionsCompleted = 0;
   state.history = [];
@@ -370,140 +312,8 @@ function handleRoundGoalChange(value) {
   renderGrowth();
 }
 
-function familyForBuiltIn(plantId) {
-  if (plantId === "snake") return "upright";
-  if (plantId === "spider") return "spotted";
-  if (plantId === "peace_lily") return "broad-leaf";
-  if (plantId === "zz") return "upright";
-  if (plantId === "pothos") return "broad-leaf";
-  return "auto";
-}
-
-function stylePaletteForFamily(resolvedFamily, random) {
-  if (resolvedFamily === "broad-leaf") {
-    return {
-      leafLight: "#5faa73",
-      leafDark: "#2f8b58",
-      vein: "#1f5d39",
-      accent: "#f4f0d7",
-      spots: false,
-      rxBoost: 8,
-      ryBoost: 2,
-    };
-  }
-  if (resolvedFamily === "upright") {
-    return {
-      leafLight: "#62b089",
-      leafDark: "#3a8d60",
-      vein: "#2c6f54",
-      accent: "#d9efd6",
-      spots: false,
-      rxBoost: -2,
-      ryBoost: 10,
-    };
-  }
-  if (resolvedFamily === "spotted") {
-    return {
-      leafLight: "#4f8e67",
-      leafDark: "#2a6d4a",
-      vein: "#1f5036",
-      accent: "#f2f6ef",
-      spots: true,
-      rxBoost: 2,
-      ryBoost: 4,
-    };
-  }
-  const pick = random();
-  if (pick < 0.33) return stylePaletteForFamily("broad-leaf", random);
-  if (pick < 0.66) return stylePaletteForFamily("upright", random);
-  return stylePaletteForFamily("spotted", random);
-}
-
-function createLeafPath(cx, cy, rx, ry, bend) {
-  const leftX = cx - rx;
-  const rightX = cx + rx;
-  const topY = cy - ry;
-  const bottomY = cy + ry;
-
-  return `M ${cx.toFixed(1)} ${topY.toFixed(1)} C ${(leftX - rx * 0.35).toFixed(1)} ${(cy - ry * 0.25).toFixed(1)} ${(leftX + rx * 0.1).toFixed(1)} ${(bottomY - ry * 0.2).toFixed(1)} ${cx.toFixed(1)} ${bottomY.toFixed(1)} C ${(rightX - rx * 0.1).toFixed(1)} ${(bottomY - ry * 0.2).toFixed(1)} ${(rightX + rx * 0.35).toFixed(1)} ${(cy - ry * 0.25).toFixed(1)} ${cx.toFixed(1)} ${topY.toFixed(1)} Z`;
-}
-
-function generatePlantSvg(seed, family) {
-  const random = mulberry32((seed >>> 0) + 7);
-  const palette = stylePaletteForFamily(family, random);
-  const stages = [];
-
-  for (let stage = 1; stage <= 5; stage += 1) {
-    const stageRandom = mulberry32((seed >>> 0) + stage * 997);
-    const leafCount = stage + 1 + (palette.spots ? 1 : 0);
-    const stemTop = 300 - (52 + stage * 34);
-    const leaves = [];
-
-    for (let i = 0; i < leafCount; i += 1) {
-      const ratio = leafCount === 1 ? 0 : i / (leafCount - 1);
-      const centered = ratio * 2 - 1;
-      const cx = 210 + centered * (26 + stage * 26) + (stageRandom() - 0.5) * 10;
-      const cy = stemTop + 45 + Math.abs(centered) * 25 + (stageRandom() - 0.5) * 10;
-      const angle = centered * (35 + stage * 8) + (stageRandom() - 0.5) * 16;
-      const rx = 12 + stage * 4 + palette.rxBoost + stageRandom() * 4;
-      const ry = 18 + stage * 6 + palette.ryBoost + stageRandom() * 6;
-      const bend = stageRandom() * 0.9 - 0.45;
-      const leafPath = createLeafPath(cx, cy, rx, ry, bend);
-      const leafId = `leaf-${stage}-${i}-${Math.floor(cx * 10)}`;
-      leaves.push(`<g transform="rotate(${angle.toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})"><path class="leaf generated-leaf" d="${leafPath}" fill="url(#leafGradient-${leafId})" /><path class="leaf-vein" d="M ${cx.toFixed(1)} ${(cy + ry * 0.95).toFixed(1)} C ${(cx + bend * rx * 0.28).toFixed(1)} ${(cy + ry * 0.2).toFixed(1)} ${(cx - bend * rx * 0.2).toFixed(1)} ${(cy - ry * 0.1).toFixed(1)} ${cx.toFixed(1)} ${(cy - ry * 0.9).toFixed(1)}" /></g>`);
-
-      leaves.push(`<defs><linearGradient id="leafGradient-${leafId}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${palette.leafLight}"/><stop offset="100%" stop-color="${palette.leafDark}"/></linearGradient></defs>`);
-
-      if (!palette.spots && stageRandom() > 0.58) {
-        const vx = cx + (stageRandom() - 0.5) * 10;
-        const vy = cy + (stageRandom() - 0.5) * 10;
-        leaves.push(`<ellipse class="variegation" cx="${vx.toFixed(1)}" cy="${vy.toFixed(1)}" rx="${(rx * 0.24).toFixed(1)}" ry="${(ry * 0.35).toFixed(1)}" transform="rotate(${angle.toFixed(1)} ${vx.toFixed(1)} ${vy.toFixed(1)})" />`);
-      }
-
-      if (palette.spots) {
-        const dots = 2 + Math.floor(stage / 2);
-        for (let d = 0; d < dots; d += 1) {
-          const dx = cx + (stageRandom() - 0.5) * (rx * 1.2);
-          const dy = cy + (stageRandom() - 0.5) * (ry * 1.2);
-          const rr = 1.6 + stageRandom() * 1.4;
-          leaves.push(`<circle class="begonia-dot" cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="${rr.toFixed(1)}" />`);
-        }
-      }
-    }
-
-    stages.push(`<g class="plant-stage stage-${stage}"><path class="stem" d="M210 300 L210 ${stemTop.toFixed(1)}" />${leaves.join("")}</g>`);
-  }
-
-  return `
-    <svg viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="potGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#b9723d" />
-          <stop offset="100%" stop-color="#8c4f2a" />
-        </linearGradient>
-        <style>
-          .generated-leaf { filter: drop-shadow(0 1px 1px rgba(15, 44, 25, 0.22)); }
-          .leaf-vein { fill: none; stroke: ${palette.vein}; stroke-width: 1.7; stroke-linecap: round; opacity: 0.45; }
-          .variegation { fill: ${palette.accent}; }
-        </style>
-      </defs>
-      <ellipse cx="210" cy="374" rx="140" ry="22" class="shadow" />
-      ${stages.join("")}
-      <path class="pot-rim" d="M118 296 H302 C314 296 324 305 324 317 C324 325 319 332 312 336 H108 C101 332 96 325 96 317 C96 305 106 296 118 296Z" />
-      <path class="pot-body" d="M110 335 H310 L290 386 H130 Z" />
-    </svg>
-  `;
-}
-
-function getPlantSvg(plantId) {
-  if (plantId === "monstera") return generatePlantSvg(hashStringToSeed("monstera-variegata"), "auto");
-  if (plantId === "strelitzia") return generatePlantSvg(hashStringToSeed("strelitzia-nicolai"), "upright");
-  if (plantId === "begonia") return generatePlantSvg(hashStringToSeed("begonia-maculata"), "spotted");
-  return generatePlantSvg(hashStringToSeed(plantId), familyForBuiltIn(plantId));
-}
-
 function renderPlantArt() {
-  const plantId = Object.hasOwn(PLANTS, state.selectedPlantId) ? state.selectedPlantId : "monstera";
+  const plantId = Object.hasOwn(PLANTS, state.selectedPlantId) ? state.selectedPlantId : DEFAULT_PLANT_ID;
   state.selectedPlantId = plantId;
   const plantName = PLANTS[plantId];
   els.plantTitle.textContent = plantName;
@@ -545,5 +355,14 @@ restoreState();
 render();
 
 if (state.isRunning) {
-  timerId = setInterval(tick, 250);
+  timerController.start();
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get("qa") === "1" || window.location.hostname === "localhost") {
+  setupQATestingControls(
+    () => state,
+    (updates) => { state = { ...state, ...updates }; },
+    render
+  );
 }

@@ -16,9 +16,9 @@ export const STAGE_LABELS = {
 };
 
 export const PLANTS = {
-  monstera: "Monstera deliciosa variegata",
-  strelitzia: "Strelitzia nicolai",
-  begonia: "Begonia maculata (Polka Dot)",
+  snake: "Snake Plant",
+  zz: "ZZ Plant",
+  begonia: "Begonia Maculata",
 };
 
 export const PLANT_FAMILIES = ["auto", "broad-leaf", "upright", "spotted"];
@@ -71,7 +71,7 @@ export function getNextMode(currentMode, focusSessionsCompleted) {
 }
 
 export function normalizePlantId(value) {
-  return Object.hasOwn(PLANTS, value) ? value : "monstera";
+  return Object.hasOwn(PLANTS, value) ? value : "snake";
 }
 
 export function normalizePlantFamily(value) {
