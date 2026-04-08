@@ -381,18 +381,51 @@ function familyForBuiltIn(plantId) {
 
 function stylePaletteForFamily(resolvedFamily, random) {
   if (resolvedFamily === "broad-leaf") {
-    return { leaf: "#2f8b58", accent: "#f4f0d7", spots: false, rxBoost: 8, ryBoost: 2 };
+    return {
+      leafLight: "#5faa73",
+      leafDark: "#2f8b58",
+      vein: "#1f5d39",
+      accent: "#f4f0d7",
+      spots: false,
+      rxBoost: 8,
+      ryBoost: 2,
+    };
   }
   if (resolvedFamily === "upright") {
-    return { leaf: "#3a8d60", accent: "#d9efd6", spots: false, rxBoost: -2, ryBoost: 10 };
+    return {
+      leafLight: "#62b089",
+      leafDark: "#3a8d60",
+      vein: "#2c6f54",
+      accent: "#d9efd6",
+      spots: false,
+      rxBoost: -2,
+      ryBoost: 10,
+    };
   }
   if (resolvedFamily === "spotted") {
-    return { leaf: "#2a6d4a", accent: "#f2f6ef", spots: true, rxBoost: 2, ryBoost: 4 };
+    return {
+      leafLight: "#4f8e67",
+      leafDark: "#2a6d4a",
+      vein: "#1f5036",
+      accent: "#f2f6ef",
+      spots: true,
+      rxBoost: 2,
+      ryBoost: 4,
+    };
   }
   const pick = random();
   if (pick < 0.33) return stylePaletteForFamily("broad-leaf", random);
   if (pick < 0.66) return stylePaletteForFamily("upright", random);
   return stylePaletteForFamily("spotted", random);
+}
+
+function createLeafPath(cx, cy, rx, ry, bend) {
+  const leftX = cx - rx;
+  const rightX = cx + rx;
+  const topY = cy - ry;
+  const bottomY = cy + ry;
+
+  return `M ${cx.toFixed(1)} ${topY.toFixed(1)} C ${(leftX - rx * 0.35).toFixed(1)} ${(cy - ry * 0.25).toFixed(1)} ${(leftX + rx * 0.1).toFixed(1)} ${(bottomY - ry * 0.2).toFixed(1)} ${cx.toFixed(1)} ${bottomY.toFixed(1)} C ${(rightX - rx * 0.1).toFixed(1)} ${(bottomY - ry * 0.2).toFixed(1)} ${(rightX + rx * 0.35).toFixed(1)} ${(cy - ry * 0.25).toFixed(1)} ${cx.toFixed(1)} ${topY.toFixed(1)} Z`;
 }
 
 function generatePlantSvg(seed, family) {
@@ -414,12 +447,17 @@ function generatePlantSvg(seed, family) {
       const angle = centered * (35 + stage * 8) + (stageRandom() - 0.5) * 16;
       const rx = 12 + stage * 4 + palette.rxBoost + stageRandom() * 4;
       const ry = 18 + stage * 6 + palette.ryBoost + stageRandom() * 6;
-      leaves.push(`<ellipse class="leaf generated-leaf" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" transform="rotate(${angle.toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})" />`);
+      const bend = stageRandom() * 0.9 - 0.45;
+      const leafPath = createLeafPath(cx, cy, rx, ry, bend);
+      const leafId = `leaf-${stage}-${i}-${Math.floor(cx * 10)}`;
+      leaves.push(`<g transform="rotate(${angle.toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})"><path class="leaf generated-leaf" d="${leafPath}" fill="url(#leafGradient-${leafId})" /><path class="leaf-vein" d="M ${cx.toFixed(1)} ${(cy + ry * 0.95).toFixed(1)} C ${(cx + bend * rx * 0.28).toFixed(1)} ${(cy + ry * 0.2).toFixed(1)} ${(cx - bend * rx * 0.2).toFixed(1)} ${(cy - ry * 0.1).toFixed(1)} ${cx.toFixed(1)} ${(cy - ry * 0.9).toFixed(1)}" /></g>`);
+
+      leaves.push(`<defs><linearGradient id="leafGradient-${leafId}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${palette.leafLight}"/><stop offset="100%" stop-color="${palette.leafDark}"/></linearGradient></defs>`);
 
       if (!palette.spots && stageRandom() > 0.58) {
         const vx = cx + (stageRandom() - 0.5) * 10;
         const vy = cy + (stageRandom() - 0.5) * 10;
-        leaves.push(`<ellipse class="variegation" cx="${vx.toFixed(1)}" cy="${vy.toFixed(1)}" rx="${(rx * 0.28).toFixed(1)}" ry="${(ry * 0.38).toFixed(1)}" transform="rotate(${angle.toFixed(1)} ${vx.toFixed(1)} ${vy.toFixed(1)})" />`);
+        leaves.push(`<ellipse class="variegation" cx="${vx.toFixed(1)}" cy="${vy.toFixed(1)}" rx="${(rx * 0.24).toFixed(1)}" ry="${(ry * 0.35).toFixed(1)}" transform="rotate(${angle.toFixed(1)} ${vx.toFixed(1)} ${vy.toFixed(1)})" />`);
       }
 
       if (palette.spots) {
@@ -444,7 +482,8 @@ function generatePlantSvg(seed, family) {
           <stop offset="100%" stop-color="#8c4f2a" />
         </linearGradient>
         <style>
-          .generated-leaf { fill: ${palette.leaf}; }
+          .generated-leaf { filter: drop-shadow(0 1px 1px rgba(15, 44, 25, 0.22)); }
+          .leaf-vein { fill: none; stroke: ${palette.vein}; stroke-width: 1.7; stroke-linecap: round; opacity: 0.45; }
           .variegation { fill: ${palette.accent}; }
         </style>
       </defs>

@@ -353,10 +353,18 @@ h3 {
   stroke-width: 8;
   stroke-linecap: round;
   fill: none;
+  opacity: 0.92;
 }
 
 .leaf {
   fill: var(--plant-leaf-primary);
+}
+
+.leaf-vein {
+  fill: none;
+  stroke: rgba(29, 87, 53, 0.42);
+  stroke-width: 1.6;
+  stroke-linecap: round;
 }
 
 .plant-visual[data-plant="strelitzia"] .leaf {
@@ -373,6 +381,7 @@ h3 {
 
 .variegation {
   fill: var(--plant-variegation);
+  opacity: 0.9;
 }
 
 .fenestration ellipse {
@@ -391,7 +400,8 @@ h3 {
   opacity: 0;
   transform-origin: 50% 70%;
   transform: scale(calc(0.88 + (var(--growth-factor) * 0.12)));
-  transition: opacity 420ms ease, transform 420ms ease;
+  transition: opacity 420ms ease, transform 420ms ease, filter 420ms ease;
+  filter: saturate(0.96) contrast(1.02);
 }
 
 .plant-visual[data-stage="1"] .stage-1,
@@ -401,6 +411,7 @@ h3 {
 .plant-visual[data-stage="5"] .stage-5 {
   opacity: 1;
   transform: scale(calc(0.96 + (var(--growth-factor) * 0.08)));
+  filter: saturate(1.04) contrast(1.04);
 }
 
 .plant-visual.growth-bump {
