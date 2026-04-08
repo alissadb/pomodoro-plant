@@ -1,17 +1,20 @@
-const CACHE_NAME = "pomodoro-plant-v3";
+const CACHE_NAME = "pomodoro-plant-v4";
 const ASSETS = [
-  "/",
-  "/index.html",
-  "/src/styles/styles.css",
-  "/src/app.js",
-  "/src/app-state-core.js",
-  "/src/pomodoro-core.js",
-  "/src/state-storage.js",
-  "/src/timer-controller.js",
-  "/src/notifications.js",
-  "/src/plant-renderer.js",
-  "/manifest.webmanifest",
-  "/assets/icon.svg"
+  "./",
+  "./index.html",
+  "./src/styles/styles.css",
+  "./src/app.js",
+  "./src/app-state-core.js",
+  "./src/pomodoro-core.js",
+  "./src/state-storage.js",
+  "./src/timer-controller.js",
+  "./src/notifications.js",
+  "./src/plant-renderer.js",
+  "./manifest.webmanifest",
+  "./assets/icon-192.png",
+  "./assets/icon-512.png",
+  "./assets/apple-touch-icon.png",
+  "./assets/favicon.png"
 ];
 
 self.addEventListener("install", (event) => {
@@ -46,7 +49,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           return response;
         })
-        .catch(() => caches.match("/index.html"));
+        .catch(() => caches.match("./index.html"));
     })
   );
 });
