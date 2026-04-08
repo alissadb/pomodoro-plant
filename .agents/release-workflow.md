@@ -88,24 +88,36 @@ Release notes are automatically formatted like this:
 **Full Changelog**: https://github.com/alissadb/pomodoro-plant/compare/v0.0.1...v0.1.0
 ```
 
+**Note:** Gitmoji emojis are automatically removed from PR titles in release notes for readability. The categories are prefixed with emojis instead.
+
 ## Commands & Utilities
 
 ### Check Current Version
 ```bash
-npm run version
-# Output: Current version: 0.0.1
+# Check package.json version
+cat package.json | grep version
+
+# Or check latest GitHub release
+gh release view --json tagName
 ```
 
 ### View Changelog
 ```bash
-npm run changelog
-# Opens: https://github.com/alissadb/pomodoro-plant/releases
+# View releases in browser
+gh release list
+
+# Or visit directly
+open https://github.com/alissadb/pomodoro-plant/releases
 ```
 
-### Setup Labels (One-Time)
+### Setup Labels (Optional)
+Labels can be added manually via GitHub UI, or you can use the automated script:
+
 ```bash
 ./scripts/setup-labels.sh
 ```
+
+This will create all required labels with appropriate colors and descriptions.
 
 ## Workflows
 
@@ -125,6 +137,11 @@ npm run changelog
   - Version bump rules
   - Release note template
   - Emoji prefixes
+  - **Autolabeler** (optional): Automatically suggests labels based on changed files
+    - Documentation files → `documentation` label
+    - Test files → `test` label
+    - Package files → `dependencies` label
+    - Note: Autolabeler only suggests labels; you still need to apply them manually
 
 ## Edge Cases
 

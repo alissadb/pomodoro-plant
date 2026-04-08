@@ -11,7 +11,7 @@ The pre-commit hooks will automatically:
 - ✅ Lint JavaScript with ESLint
 - ✅ Format code with Prettier
 - ✅ Run tests before commit
-- ✅ Validate Gitmoji commit messages
+- ✅ Validate Gitmoji commit messages (via commit-msg hook)
 
 ## Installation
 
@@ -21,6 +21,9 @@ The pre-commit hooks will automatically:
 # Using pip
 pip install pre-commit
 
+# Using uv (if you have it installed)
+uv pip install pre-commit
+
 # Or using Homebrew (macOS)
 brew install pre-commit
 ```
@@ -29,9 +32,15 @@ brew install pre-commit
 
 ```bash
 cd pomodoro-plant
+
+# Install pre-commit hooks
 pre-commit install
+
+# Install commit-msg hook for Gitmoji validation (REQUIRED)
 pre-commit install --hook-type commit-msg
 ```
+
+**Important:** The commit-msg hook is required to validate Gitmoji format. Without it, commits without emojis will be rejected by CI.
 
 ### 3. (Optional) Run on all files
 

@@ -20,6 +20,8 @@ This project uses **Gitmoji** for semantic commit messages, inspired by [FastAPI
 
 ## Common Emoji Prefixes
 
+**Note:** Pre-commit hooks validate that commits start with one of the emojis listed below. The validation ensures consistency across the project.
+
 ### Features & Fixes
 - ✨ `:sparkles:` - New feature
 - 🐛 `:bug:` - Bug fix
@@ -29,7 +31,7 @@ This project uses **Gitmoji** for semantic commit messages, inspired by [FastAPI
 
 ### Code Quality
 - ♻️ `:recycle:` - Refactor code
-- 🎨 `:art:` - Improve structure/format
+- 🎨 `:art:` - Improve code structure/format
 - 🔥 `:fire:` - Remove code or files
 - 🚨 `:rotating_light:` - Fix linter warnings
 
@@ -45,7 +47,6 @@ This project uses **Gitmoji** for semantic commit messages, inspired by [FastAPI
 
 ### UI & Assets
 - 💄 `:lipstick:` - Add or update UI and style files
-- 🎨 `:art:` - Improve UI/UX
 - 🖼️ `:framed_picture:` - Add or update assets
 
 ### Configuration & DevOps
@@ -71,8 +72,8 @@ This project uses **Gitmoji** for semantic commit messages, inspired by [FastAPI
 1. **Use imperative mood**: "Add feature" not "Added feature"
 2. **Be specific**: "Fix timer pause bug" not "Fix bug"
 3. **Reference issues**: Include issue numbers when relevant
-4. **Keep it concise**: Aim for 50 characters or less for the title
-5. **Add details in body**: Use multi-line commits for complex changes
+4. **Keep title concise**: Aim for 50 characters or less for the title (72 character hard limit)
+5. **Add details in body**: Use multi-line commits for complex changes (wrap body at 72 characters)
 
 ### Multi-line Example
 
