@@ -16,30 +16,59 @@ Grow a virtual plant while staying focused with the Pomodoro technique.
 
 ## Features
 
-- 25-min focus sessions, 5-min short breaks, 15-min long breaks (every 4th cycle)
-- Choose from 3 plants: Snake Plant, ZZ Plant, or Begonia
-- Visual growth stages as you complete focus sessions
-- Adjustable growth goal (default: 10 rounds = 250 minutes)
-- Browser notifications + sound chimes
-- Installable PWA with offline support
-- Local data persistence
+- 🍅 **Pomodoro Timer**: 25-min focus sessions, 5-min short breaks, 15-min long breaks (every 4th cycle)
+- 🌱 **Plant Growth**: Choose from 3 plants (Snake Plant, ZZ Plant, Begonia) with 5 visual growth stages
+- 🎯 **Customizable Goals**: Adjustable growth goal (default: 10 rounds = 250 minutes)
+- 📱 **Mobile Optimized**: Floating plant preview button, sticky controls, touch-friendly interface
+- 🔔 **Notifications**: Browser notifications + sound chimes when sessions complete
+- 💾 **Offline Support**: Installable PWA with local data persistence
+- 📊 **Session History**: Track completed focus sessions and streaks
+
+## Technology Stack
+
+- **Frontend**: Vanilla JavaScript (ES6 modules), HTML5, CSS3
+- **Architecture**: Modular design with pure domain logic separated from UI
+- **Testing**: Node.js native test runner (28 automated tests)
+- **PWA**: Service Worker with offline caching
+- **Storage**: localStorage with debounced persistence
+- **Build**: No build step, no bundler, zero dependencies
 
 ## Quick Start
 
-**Run locally:**
+### Run Locally
+
 ```bash
+# Start development server
 python -m http.server 8000
-# or: make serve
+
+# Or using Make
+make serve
+
+# Open in browser
+open http://localhost:8000
 ```
 
-**Run tests:**
+### Install as PWA
+
+**iOS:**
+1. Open http://localhost:8000 in Safari
+2. Tap Share button → "Add to Home Screen"
+3. Launch from home screen like a native app
+
+**Android:**
+1. Open http://localhost:8000 in Chrome
+2. Tap Menu (⋮) → "Install app"
+3. Launch from app drawer
+
+### Run Tests
+
 ```bash
+# Run all tests
 npm test
-```
 
-**Install on mobile:**
-- iOS: Open in Safari → Share → Add to Home Screen
-- Android: Open in Chrome → Menu → Install app
+# Run tests in watch mode (if configured)
+npm run test:watch
+```
 
 ## Development
 
