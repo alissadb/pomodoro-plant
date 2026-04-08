@@ -1,10 +1,10 @@
 # Pomodoro Plant
 
-[![Test and Deploy](https://github.com/<username>/pomodoro-plant/actions/workflows/deploy.yml/badge.svg)](https://github.com/<username>/pomodoro-plant/actions/workflows/deploy.yml)
+[![Test and Deploy](https://github.com/alissadb/pomodoro-plant/actions/workflows/deploy.yml/badge.svg)](https://github.com/alissadb/pomodoro-plant/actions/workflows/deploy.yml)
 
 A lightweight Pomodoro web app where your chosen plant grows as you focus.
 
-**[🚀 Live Demo](https://<username>.github.io/pomodoro-plant/)** *(replace `<username>` with your GitHub username)*
+**[🚀 Live Demo](https://alissadb.github.io/pomodoro-plant/)**
 
 ## Features
 
@@ -28,6 +28,7 @@ A lightweight Pomodoro web app where your chosen plant grows as you focus.
 - Last 8 session events history
 - Local persistence via `localStorage`
 - Installable as a PWA (Add to Home Screen)
+- Configurable growth target by round count (default: 10 rounds)
 - 28 comprehensive tests ensuring reliability
 
 ## Quick Start
