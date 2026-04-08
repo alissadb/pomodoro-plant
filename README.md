@@ -35,8 +35,6 @@ npm test
 
 ## Development
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for deployment instructions.
-
 ```
 app.js              # Main app logic
 pomodoro-core.js    # Pure functions (timer, modes, stages)
