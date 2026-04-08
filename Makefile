@@ -1,4 +1,4 @@
-.PHONY: serve test kill-port
+.PHONY: serve test dev kill-port help
 
 # Default port
 PORT ?= 8000
@@ -24,3 +24,13 @@ dev: kill-port
 	@uv run python -m http.server $(PORT) & 
 	@sleep 1
 	@open http://localhost:$(PORT) 2>/dev/null || xdg-open http://localhost:$(PORT) 2>/dev/null || echo "Server running at http://localhost:$(PORT)"
+
+# Show available commands
+help:
+	@echo "Available commands:"
+	@echo "  make serve     Start dev server on http://localhost:$(PORT)"
+	@echo "  make test      Run test suite"
+	@echo "  make dev       Start server and open browser"
+	@echo "  make kill-port Kill process using PORT (default: 8000)"
+	@echo ""
+	@echo "Override the port with: make serve PORT=9000"

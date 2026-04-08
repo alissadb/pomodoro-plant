@@ -367,8 +367,35 @@ h3 {
   stroke-linecap: round;
 }
 
-.plant-visual[data-plant="strelitzia"] .leaf {
-  fill: var(--plant-leaf-alt);
+.leaf-split {
+  fill: none;
+  stroke: rgba(230, 244, 226, 0.8);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.72;
+}
+
+.plant-visual[data-plant="snake"] .snake-leaf {
+  filter: saturate(1.04) contrast(1.02);
+}
+
+.plant-visual[data-plant="zz"] .zz-stem {
+  stroke: #3f7a47;
+  stroke-width: 9;
+  stroke-linecap: round;
+  fill: none;
+  opacity: 0.95;
+}
+
+.plant-visual[data-plant="zz"] .zz-leaf {
+  filter: drop-shadow(0 1px 1px rgba(18, 46, 26, 0.22));
+}
+
+.plant-visual[data-plant="zz"] .zz-highlight {
+  fill: none;
+  stroke: rgba(232, 248, 228, 0.48);
+  stroke-width: 1.4;
+  stroke-linecap: round;
 }
 
 .plant-visual[data-plant="begonia"] .begonia-leaf {

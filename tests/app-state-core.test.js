@@ -26,7 +26,7 @@ test("sanitizeState clamps invalid values and normalizes fields", () => {
   assert.equal(state.focusSessionsCompleted, 0);
   assert.equal(state.focusedMinutesTotal, 5000);
   assert.equal(state.history.length, 8);
-  assert.equal(state.selectedPlantId, "monstera");
+  assert.equal(state.selectedPlantId, "snake");
   assert.equal(state.streak, 0);
   assert.equal(state.lastCompletedStage, 5);
   assert.equal(state.roundGoal, 60);
@@ -76,15 +76,15 @@ test("applySkipInterval resets streak only for focus mode", () => {
 
 test("switchPlantPreservingProgress changes only selected plant", () => {
   const input = {
-    selectedPlantId: "monstera",
+    selectedPlantId: "snake",
     focusedMinutesTotal: 125,
     streak: 5,
     remainingSeconds: 333,
     history: [{ label: "Focus complete", time: "10:10" }],
   };
 
-  const out = switchPlantPreservingProgress(input, "strelitzia");
-  assert.equal(out.selectedPlantId, "strelitzia");
+  const out = switchPlantPreservingProgress(input, "zz");
+  assert.equal(out.selectedPlantId, "zz");
   assert.equal(out.focusedMinutesTotal, 125);
   assert.equal(out.streak, 5);
   assert.equal(out.remainingSeconds, 333);
@@ -177,5 +177,5 @@ test("applySkipInterval preserves streak when mode is long break", () => {
 test("switchPlantPreservingProgress normalizes invalid plant IDs", () => {
   const input = { selectedPlantId: "begonia" };
   const result = switchPlantPreservingProgress(input, "invalid_plant_123");
-  assert.equal(result.selectedPlantId, "monstera");
+  assert.equal(result.selectedPlantId, "snake");
 });

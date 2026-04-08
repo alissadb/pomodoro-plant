@@ -9,7 +9,7 @@ Grow a virtual plant while staying focused with the Pomodoro technique.
 ## Features
 
 - 25-min focus sessions, 5-min short breaks, 15-min long breaks (every 4th cycle)
-- Choose from 3 plants: Monstera, Strelitzia, or Begonia
+- Choose from 3 plants: Snake Plant, ZZ Plant, or Begonia
 - Visual growth stages as you complete focus sessions
 - Adjustable growth goal (default: 10 rounds = 250 minutes)
 - Browser notifications + sound chimes
@@ -36,9 +36,19 @@ npm test
 ## Development
 
 ```
-app.js              # Main app logic
-pomodoro-core.js    # Pure functions (timer, modes, stages)
-app-state-core.js   # State management
-styles.css          # Design & plant visuals
+app.js              # App orchestration (UI + module wiring)
+pomodoro-core.js    # Pure domain functions (modes, stages, goals)
+app-state-core.js   # State transitions + sanitization
+timer-controller.js # Timer loop lifecycle (start/stop/tick)
+state-storage.js    # localStorage adapter (debounced/immediate save)
+notifications.js    # Browser notifications + completion chime
+plant-renderer.js   # Plant SVG rendering (snake, zz, begonia, fallback)
+styles.css          # Design system + visual styling
 tests/              # 28 automated tests
 ```
+
+## Architecture Notes
+
+- `app.js` coordinates modules and DOM events, but keeps business rules in core/state modules.
+- `pomodoro-core.js` and `app-state-core.js` remain framework-agnostic and easy to unit test.
+- Rendering, timer, notifications, and persistence are isolated behind dedicated modules to keep the codebase KISS, SOLID, and DRY.
