@@ -8,6 +8,12 @@ Grow a virtual plant while staying focused with the Pomodoro technique.
 
 **[Pomodoro Plant](https://alissadb.github.io/pomodoro-plant/)**
 
+## Screenshot
+
+![Pomodoro Plant App](docs/images/app-screenshot.png)
+
+*Focus timer and growing plant side-by-side view*
+
 ## Features
 
 - 25-min focus sessions, 5-min short breaks, 15-min long breaks (every 4th cycle)

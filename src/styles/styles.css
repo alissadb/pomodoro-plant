@@ -579,6 +579,95 @@ body.mode-long .timer {
   color: #365a87;
 }
 
+/* Floating plant preview button (mobile only) */
+.plant-preview-btn {
+  display: none;
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5f9b76, #2a6d4a);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(47, 125, 79, 0.3);
+  cursor: pointer;
+  z-index: 100;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  padding: 0;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.plant-preview-btn:active {
+  transform: scale(0.95);
+}
+
+.plant-preview-icon {
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  fill: #f7fbf5;
+}
+
+/* Plant view header with mini timer */
+.plant-view-header {
+  display: none;
+  position: sticky;
+  top: 0;
+  background: var(--card);
+  border-bottom: 1px solid var(--card-border);
+  padding: 0.75rem 1rem;
+  margin: -1.15rem -1.15rem 1rem -1.15rem;
+  z-index: 50;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(29, 51, 40, 0.08);
+  backdrop-filter: blur(4px);
+}
+
+.back-to-timer-btn {
+  background: transparent;
+  border: none;
+  color: var(--focus);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-left: -0.5rem;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 150ms ease;
+}
+
+.back-to-timer-btn:active {
+  color: var(--short);
+}
+
+.mini-timer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.mini-timer-mode {
+  color: var(--focus);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.mini-timer-separator {
+  color: var(--muted);
+}
+
+.mini-timer-display {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
 @media (max-width: 900px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -595,6 +684,17 @@ body.mode-long .timer {
 
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Show floating preview and mini timer on mobile */
+  .plant-preview-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .plant-view-header {
+    display: flex;
   }
 }
 
@@ -723,6 +823,20 @@ body.mode-long .timer {
   .history li {
     padding: 0.3rem 0.45rem;
     font-size: 0.92rem;
+  }
+
+  /* Adjust floating preview for safe area on iPhone X+ */
+  .plant-preview-btn {
+    top: max(1.5rem, env(safe-area-inset-top));
+    right: max(1rem, env(safe-area-inset-right));
+  }
+
+  /* Adjust mini timer header for safe area and smaller card padding */
+  .plant-view-header {
+    top: env(safe-area-inset-top, 0);
+    margin-top: -0.85rem;
+    margin-left: -0.85rem;
+    margin-right: -0.85rem;
   }
 }
 
