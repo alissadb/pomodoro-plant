@@ -4,18 +4,37 @@ Quick reference for creating commits, pushing changes, and opening pull requests
 
 ---
 
+## ⚠️ CRITICAL RULE: Never Push Directly to Main
+
+**ALL changes MUST go through a feature branch and PR.**
+
+✅ **Correct workflow:**
+```
+main → feature branch → commit → push → PR → merge
+```
+
+❌ **Never do this:**
+```
+main → commit → push (BLOCKED)
+```
+
+---
+
 ## Quick Commands
 
 ### Option 1: Manual Git Flow
 ```bash
+# Create feature branch FIRST
+git checkout -b feature/my-feature
+
 # Stage changes
 git add .
 
 # Commit with Gitmoji
 git commit -m "✨ Add feature description"
 
-# Push to remote
-git push origin branch-name
+# Push to feature branch
+git push -u origin feature/my-feature
 
 # Create PR
 gh pr create --title "Title" --body "Description"
@@ -27,17 +46,20 @@ Ask OpenCode to:
 "Create a commit, push, and open a PR"
 ```
 
+OpenCode will automatically create a feature branch if you're on main.
+
 ---
 
 ## Workflow: Commit + Push + PR
 
 When you ask OpenCode to create a commit, push, and PR, it will:
 
-1. **Check branch status** - Verify current branch and changes
-2. **Stage relevant files** - Add modified files to staging area
-3. **Create commit** - Following Gitmoji conventions
-4. **Push to remote** - With upstream tracking if needed
-5. **Create pull request** - Using `gh` CLI with proper format
+1. **Check current branch** - If on main/master, create feature branch automatically
+2. **Verify branch protection** - Ensure not pushing directly to main
+3. **Stage relevant files** - Add modified files to staging area
+4. **Create commit** - Following Gitmoji conventions
+5. **Push to feature branch** - With upstream tracking if needed
+6. **Create pull request** - Using `gh` CLI with proper format
 
 ---
 
@@ -142,17 +164,30 @@ Fixes #456
 
 ## Step-by-Step Workflow
 
-### 1. Ensure You're On a Feature Branch
+### 1. Ensure You're On a Feature Branch (REQUIRED)
+
+**⚠️ NEVER commit directly to main/master.**
 
 ```bash
 # Check current branch
 git branch --show-current
 
-# Create new branch if on main
+# If on main, CREATE FEATURE BRANCH FIRST
 git checkout -b feature/my-feature
 ```
 
-**If on main:** OpenCode will create a feature branch automatically.
+**Branch naming format:**
+```
+feature/<description>    # For new features
+fix/<description>        # For bug fixes
+docs/<description>       # For documentation
+refactor/<description>   # For code refactoring
+```
+
+**OpenCode Safety Check:**
+- If on main/master, OpenCode will **automatically create a feature branch**
+- Branch name generated from commit message
+- You will **never** accidentally push to main
 
 ---
 
@@ -517,23 +552,38 @@ gh pr checks                  # View CI status
 
 **OpenCode will:**
 ```
-1. Run: git status
-2. Run: git diff [to understand changes]
-3. Run: git log --oneline -5 [to check commit history]
-4. Stage: git add [relevant files]
-5. Commit: git commit -m "🐛 Fix timer race condition in timer-controller"
-6. Check remote: git branch -vv
-7. Push: git push -u origin fix/timer-race-condition
-8. Create PR: gh pr create --title "..." --body "..."
-9. Return: PR URL to user
+1. Run: git branch --show-current
+   → If on main: STOP and create feature branch first
+   → Example: git checkout -b fix/timer-race-condition
+
+2. Run: git status
+3. Run: git diff [to understand changes]
+4. Run: git log --oneline -5 [to check commit history]
+
+5. Stage: git add [relevant files]
+6. Commit: git commit -m "🐛 Fix timer race condition in timer-controller"
+
+7. Check remote: git branch -vv
+8. Push: git push -u origin fix/timer-race-condition
+   → NEVER pushes to main/master
+
+9. Create PR: gh pr create --title "..." --body "..."
+10. Return: PR URL to user
 ```
+
+**Critical Safety Check:**
+- Step 1 always checks if on main/master
+- If on main, automatically creates feature branch
+- Feature branch name derived from changes or commit message
+- Example: "fix timer bug" → `fix/timer-bug` branch
 
 ---
 
 ### What OpenCode Won't Do (Without Explicit Request)
 
 - Amend existing commits
-- Force push to main/master
+- Force push to any branch
+- Push directly to main/master ⚠️ **NEVER**
 - Delete branches
 - Merge PRs automatically
 - Skip pre-commit hooks
@@ -546,14 +596,17 @@ gh pr checks                  # View CI status
 OpenCode follows these safety protocols:
 
 ✅ **Always:**
-- Checks branch before committing
+- Checks current branch before any operation
+- **Creates feature branch if on main/master** ⚠️
 - Reviews staged files before commit
 - Verifies tests pass
 - Uses Gitmoji conventions
-- Creates feature branch if on main
 - Uses `--force-with-lease` instead of `--force`
+- Pushes to feature branch, never to main
 
 ❌ **Never:**
+- Commits directly to main/master ⚠️ **BLOCKED**
+- Pushes to main/master without PR ⚠️ **BLOCKED**
 - Commits secrets or credentials
 - Force pushes to main/master
 - Skips pre-commit hooks (unless explicitly requested)
