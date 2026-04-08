@@ -71,6 +71,12 @@ const els = {
   plantVisual: document.getElementById("plantVisual"),
   historyList: document.getElementById("historyList"),
   sessionCount: document.getElementById("sessionCount"),
+  plantPreviewBtn: document.getElementById("plantPreviewBtn"),
+  plantViewHeader: document.getElementById("plantViewHeader"),
+  backToTimerBtn: document.getElementById("backToTimerBtn"),
+  miniTimer: document.getElementById("miniTimer"),
+  miniTimerMode: document.getElementById("miniTimerMode"),
+  miniTimerDisplay: document.getElementById("miniTimerDisplay"),
 };
 
 let state = {
@@ -190,6 +196,14 @@ function renderTimer() {
   els.streakValue.textContent = `${state.streak}`;
   els.startPauseBtn.textContent = state.isRunning ? "Pause" : "Start";
   els.startPauseBtn.setAttribute("aria-pressed", state.isRunning ? "true" : "false");
+
+  // Update mini timer display
+  if (els.miniTimerDisplay) {
+    els.miniTimerDisplay.textContent = timeStr;
+  }
+  if (els.miniTimerMode) {
+    els.miniTimerMode.textContent = MODES[state.mode].label;
+  }
 
   const modeLabel = MODES[state.mode].label;
   document.title = state.isRunning
@@ -368,6 +382,41 @@ els.roundGoalInput?.addEventListener("change", (event) => {
   
   handleRoundGoalChange(normalized);
 });
+
+// Scroll helper functions for mobile plant preview
+function scrollToPlant() {
+  const plantPanel = document.querySelector('.plant-panel');
+  plantPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function scrollToTimer() {
+  const timerPanel = document.querySelector('.timer-panel');
+  timerPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Toggle scroll between timer and plant
+function toggleScroll() {
+  const timerPanel = document.querySelector('.timer-panel');
+  const plantPanel = document.querySelector('.plant-panel');
+  
+  if (!timerPanel || !plantPanel) return;
+  
+  // Check which panel is currently in view
+  const timerRect = timerPanel.getBoundingClientRect();
+  const isTimerVisible = timerRect.top >= -50 && timerRect.top <= 100;
+  
+  if (isTimerVisible) {
+    scrollToPlant();
+  } else {
+    scrollToTimer();
+  }
+}
+
+// Floating plant preview button (mobile) - toggles between timer and plant
+els.plantPreviewBtn?.addEventListener('click', toggleScroll);
+
+// Back to timer button in plant view header (mobile)
+els.backToTimerBtn?.addEventListener('click', scrollToTimer);
 
 // Keyboard shortcuts for power users
 document.addEventListener('keydown', (e) => {

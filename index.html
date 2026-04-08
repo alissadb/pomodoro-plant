@@ -18,6 +18,17 @@
     <link rel="stylesheet" href="src/styles/styles.css" />
   </head>
   <body class="mode-focus">
+    <!-- Floating plant preview button (mobile only) -->
+    <button id="plantPreviewBtn" class="plant-preview-btn" aria-label="View full plant">
+      <svg class="plant-preview-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M256 370c-8 0-14-6-14-14V212c0-8 6-14 14-14s14 6 14 14v144c0 8-6 14-14 14z" fill="#2d6b3f"/>
+        <path d="M250 238c-60 0-94-56-80-114 54 4 104 44 104 104 0 6-4 10-10 10h-14z" fill="#1f6640"/>
+        <path d="M262 238c60 0 94-56 80-114-54 4-104 44-104 104 0 6 4 10 10 10h14z" fill="#2a6d48"/>
+        <rect x="182" y="358" width="148" height="24" rx="12" fill="#855331"/>
+        <path d="M194 382h124l-12 58h-100z" fill="#6d4222"/>
+      </svg>
+    </button>
+
     <main class="app-shell">
       <section class="timer-panel card">
         <p class="eyebrow">Pomodoro Plant</p>
@@ -80,6 +91,18 @@
       </section>
 
       <section class="plant-panel card">
+        <!-- Mini timer header (mobile only, sticky at top) -->
+        <div class="plant-view-header" id="plantViewHeader">
+          <button class="back-to-timer-btn" id="backToTimerBtn" aria-label="Back to timer">
+            ← Back
+          </button>
+          <div class="mini-timer" id="miniTimer">
+            <span class="mini-timer-mode" id="miniTimerMode">Focus</span>
+            <span class="mini-timer-separator">•</span>
+            <span class="mini-timer-display" id="miniTimerDisplay">25:00</span>
+          </div>
+        </div>
+
         <div class="plant-headline">
           <h2 id="plantTitle">Snake Plant</h2>
           <p id="stageLabel">Stage: Seedling</p>
