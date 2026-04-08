@@ -87,12 +87,15 @@
 
         <div class="plant-visual" id="plantVisual" data-stage="1" role="img" aria-label="Growing plant illustration showing current growth stage"></div>
 
-        <section class="history">
-          <h3>Recent Sessions</h3>
+        <details class="history" open>
+          <summary>
+            <span class="history-title">Recent Sessions</span>
+            <span class="session-count" id="sessionCount"></span>
+          </summary>
           <ul id="historyList">
             <li>No sessions completed yet.</li>
           </ul>
-        </section>
+        </details>
       </section>
     </main>
 

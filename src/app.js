@@ -70,6 +70,7 @@ const els = {
   stageLabel: document.getElementById("stageLabel"),
   plantVisual: document.getElementById("plantVisual"),
   historyList: document.getElementById("historyList"),
+  sessionCount: document.getElementById("sessionCount"),
 };
 
 let state = {
@@ -142,6 +143,14 @@ function restoreState() {
 }
 
 function renderHistory() {
+  // Update session count badge
+  if (els.sessionCount && state.history && state.history.length > 0) {
+    els.sessionCount.textContent = `(${state.history.length})`;
+  } else if (els.sessionCount) {
+    els.sessionCount.textContent = '';
+  }
+  
+  // Update history list
   if (!state.history.length) {
     els.historyList.innerHTML = "<li>No sessions completed yet.</li>";
     return;
