@@ -33,6 +33,7 @@ const els = {
   minutesRemaining: document.getElementById("minutesRemaining"),
   streakValue: document.getElementById("streakValue"),
   progressFill: document.getElementById("progressFill"),
+  progressTrack: document.getElementById("progressTrack"),
   progressText: document.getElementById("progressText"),
   stageLabel: document.getElementById("stageLabel"),
   plantVisual: document.getElementById("plantVisual"),
@@ -136,7 +137,7 @@ function renderGrowth() {
   els.focusedMinutes.textContent = `${state.focusedMinutesTotal} min`;
   els.minutesRemaining.textContent = `${remaining} min`;
   els.progressFill.style.width = `${progress.toFixed(2)}%`;
-  els.progressFill.setAttribute("aria-valuenow", Math.round(progress));
+  els.progressTrack?.setAttribute("aria-valuenow", String(Math.round(progress)));
   els.progressText.textContent = `${Math.round(progress)}% grown`;
   els.stageLabel.textContent = `Stage: ${STAGE_LABELS[stage]}`;
   els.plantVisual.dataset.stage = String(stage);
@@ -497,7 +498,7 @@ els.roundGoalInput?.addEventListener("change", (event) => {
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
   });
 }
 

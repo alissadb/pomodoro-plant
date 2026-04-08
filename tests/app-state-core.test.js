@@ -83,8 +83,8 @@ test("switchPlantPreservingProgress changes only selected plant", () => {
     history: [{ label: "Focus complete", time: "10:10" }],
   };
 
-  const out = switchPlantPreservingProgress(input, "snake");
-  assert.equal(out.selectedPlantId, "snake");
+  const out = switchPlantPreservingProgress(input, "strelitzia");
+  assert.equal(out.selectedPlantId, "strelitzia");
   assert.equal(out.focusedMinutesTotal, 125);
   assert.equal(out.streak, 5);
   assert.equal(out.remainingSeconds, 333);

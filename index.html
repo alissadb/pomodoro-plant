@@ -2,11 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Grow virtual plants while focusing with the Pomodoro technique. A beautiful, mindful productivity timer." />
     <meta name="theme-color" content="#2f7d4f" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
     <meta name="apple-mobile-web-app-title" content="Pomodoro Plant" />
     <title>Pomodoro Plant</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>" />
@@ -26,11 +28,6 @@
             <option value="monstera">Monstera deliciosa variegata</option>
             <option value="strelitzia">Strelitzia nicolai</option>
             <option value="begonia">Begonia maculata (Polka Dot)</option>
-            <option value="pothos">Epipremnum aureum (Pothos)</option>
-            <option value="snake">Sansevieria trifasciata (Snake Plant)</option>
-            <option value="peace_lily">Spathiphyllum wallisii (Peace Lily)</option>
-            <option value="zz">Zamioculcas zamiifolia (ZZ Plant)</option>
-            <option value="spider">Chlorophytum comosum (Spider Plant)</option>
           </select>
         </div>
 
@@ -64,7 +61,7 @@
         </div>
 
         <div class="progress-wrap">
-          <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Plant growth progress">
+          <div id="progressTrack" class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Plant growth progress">
             <div class="progress-fill" id="progressFill"></div>
           </div>
           <p class="progress-text" id="progressText">0% grown</p>

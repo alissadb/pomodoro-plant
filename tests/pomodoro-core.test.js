@@ -52,14 +52,9 @@ test("plant selection normalizes to known values", () => {
   assert.equal(normalizePlantId("monstera"), "monstera");
   assert.equal(normalizePlantId("strelitzia"), "strelitzia");
   assert.equal(normalizePlantId("begonia"), "begonia");
-  assert.equal(normalizePlantId("pothos"), "pothos");
-  assert.equal(normalizePlantId("snake"), "snake");
-  assert.equal(normalizePlantId("peace_lily"), "peace_lily");
-  assert.equal(normalizePlantId("zz"), "zz");
-  assert.equal(normalizePlantId("spider"), "spider");
   assert.equal(normalizePlantId("unknown"), "monstera");
   assert.equal(normalizePlantId(""), "monstera");
-  assert.equal(Object.keys(PLANTS).length, 8);
+  assert.equal(Object.keys(PLANTS).length, 3);
 });
 
 test("formatTime handles edge cases", () => {
@@ -139,7 +134,7 @@ test("plant family normalization", () => {
 });
 
 test("PLANTS constant has expected entries", () => {
-  assert.equal(Object.keys(PLANTS).length, 8);
+  assert.equal(Object.keys(PLANTS).length, 3);
   assert.ok(PLANTS.monstera.includes("Monstera"));
   assert.ok(PLANTS.strelitzia.includes("Strelitzia"));
   assert.ok(PLANTS.begonia.includes("Begonia"));

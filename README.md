@@ -14,21 +14,15 @@ A lightweight Pomodoro web app where your chosen plant grows as you focus.
   - Long break: 15 minutes every 4 completed focus sessions
 - Manual start after each interval
 - Adjustable growth target by rounds (default: 10 rounds = 250 minutes)
-- Plant selector with 8 choices:
+- Plant selector with 3 choices:
   - Monstera deliciosa variegata
   - Strelitzia nicolai
   - Begonia maculata (Polka Dot)
-  - Epipremnum aureum (Pothos)
-  - Sansevieria trifasciata (Snake Plant)
-  - Spathiphyllum wallisii (Peace Lily)
-  - Zamioculcas zamiifolia (ZZ Plant)
-  - Chlorophytum comosum (Spider Plant)
 - Stylized procedural SVG plant growth stages
 - Browser notifications + chime sound on interval completion
 - Last 8 session events history
 - Local persistence via `localStorage`
 - Installable as a PWA (Add to Home Screen)
-- Configurable growth target by round count (default: 10 rounds)
 - 28 comprehensive tests ensuring reliability
 
 ## Quick Start

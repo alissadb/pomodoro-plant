@@ -19,11 +19,6 @@ export const PLANTS = {
   monstera: "Monstera deliciosa variegata",
   strelitzia: "Strelitzia nicolai",
   begonia: "Begonia maculata (Polka Dot)",
-  pothos: "Epipremnum aureum (Pothos)",
-  snake: "Sansevieria trifasciata (Snake Plant)",
-  peace_lily: "Spathiphyllum wallisii (Peace Lily)",
-  zz: "Zamioculcas zamiifolia (ZZ Plant)",
-  spider: "Chlorophytum comosum (Spider Plant)",
 };
 
 export const PLANT_FAMILIES = ["auto", "broad-leaf", "upright", "spotted"];
