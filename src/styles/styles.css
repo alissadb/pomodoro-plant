@@ -132,12 +132,17 @@ h3 {
   background: var(--input-bg);
   color: var(--ink);
   font: inherit;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
 }
 
 .round-goal-input:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.round-goal-input.value-adjusted {
+  background-color: rgba(255, 210, 110, 0.15);
+  border-color: rgba(255, 165, 0, 0.35);
 }
 
 

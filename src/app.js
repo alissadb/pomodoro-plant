@@ -23,11 +23,14 @@ import {
   announceIntervalComplete as announceIntervalCompleteUi,
 } from "./notifications.js";
 import { getPlantSvg } from "./plant-renderer.js";
-import { setupQATestingControls } from "./qa-testing.js";
 
 const STORAGE_KEY = "pomodoro-plant-state-v5";
 const HISTORY_LIMIT = 8;
 const DEFAULT_PLANT_ID = "snake";
+const TIMER_TICK_INTERVAL_MS = 250;
+const GROWTH_ANIMATION_DURATION_MS = 520;
+const NOTIFICATION_ANIMATION_DURATION_MS = 600;
+const INPUT_VALIDATION_FEEDBACK_DURATION_MS = 600;
 const MODE_CLASS = {
   focus: "mode-focus",
   short: "mode-short",
@@ -97,7 +100,7 @@ const timerController = createTimerController({
     state.endTime = null;
     completeCurrentInterval();
   },
-  intervalMs: 250,
+  intervalMs: TIMER_TICK_INTERVAL_MS,
 });
 
 function getModeClass(mode) {
@@ -230,7 +233,7 @@ function completeCurrentInterval(fromRestore = false) {
     addHistory(completion.historyLabel);
     handleStageReward();
     els.plantVisual.classList.add("growth-bump");
-    setTimeout(() => els.plantVisual.classList.remove("growth-bump"), 520);
+    setTimeout(() => els.plantVisual.classList.remove("growth-bump"), GROWTH_ANIMATION_DURATION_MS);
   } else {
     addHistory(completion.historyLabel);
   }
@@ -307,7 +310,8 @@ function handleRoundGoalChange(value) {
   const nextRoundGoal = normalizeRoundGoal(value);
   state.roundGoal = nextRoundGoal;
   const currentStage = getStageFromGrowthWithGoal(state.focusedMinutesTotal, getGrowthGoalMinutes(nextRoundGoal));
-  state.lastCompletedStage = currentStage;
+  // Keep the max of current and previous lastCompletedStage to preserve achievement history
+  state.lastCompletedStage = Math.max(state.lastCompletedStage, currentStage);
   saveState();
   renderGrowth();
 }
@@ -342,7 +346,47 @@ els.skipBtn.addEventListener("click", skipCurrentInterval);
 els.resetPlantBtn.addEventListener("click", resetPlantGrowth);
 els.plantSelect.addEventListener("change", handlePlantChange);
 els.roundGoalInput?.addEventListener("change", (event) => {
-  handleRoundGoalChange(event.target.value);
+  const input = event.target;
+  const inputValue = input.value;
+  const normalized = normalizeRoundGoal(inputValue);
+  
+  if (String(normalized) !== inputValue) {
+    // Value was clamped - show user
+    input.value = String(normalized);
+    input.classList.add('value-adjusted');
+    setTimeout(() => input.classList.remove('value-adjusted'), INPUT_VALIDATION_FEEDBACK_DURATION_MS);
+  }
+  
+  handleRoundGoalChange(normalized);
+});
+
+// Keyboard shortcuts for power users
+document.addEventListener('keydown', (e) => {
+  // Ignore if user is typing in an input field
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+    return;
+  }
+  
+  switch(e.key) {
+    case ' ':  // Space = Start/Pause
+      e.preventDefault();
+      if (state.isRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+      break;
+    case 'r':  // R = Reset
+      if (e.ctrlKey || e.metaKey) return;  // Don't override Ctrl+R (browser refresh)
+      e.preventDefault();
+      resetCurrentTimer();
+      break;
+    case 's':  // S = Skip
+      if (e.ctrlKey || e.metaKey) return;  // Don't override Ctrl+S (save)
+      e.preventDefault();
+      skipCurrentInterval();
+      break;
+  }
 });
 
 if ("serviceWorker" in navigator) {
@@ -359,10 +403,3 @@ if (state.isRunning) {
 }
 
 const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get("qa") === "1" || window.location.hostname === "localhost") {
-  setupQATestingControls(
-    () => state,
-    (updates) => { state = { ...state, ...updates }; },
-    render
-  );
-}

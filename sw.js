@@ -1,11 +1,15 @@
-const CACHE_NAME = "pomodoro-plant-v2";
+const CACHE_NAME = "pomodoro-plant-v3";
 const ASSETS = [
   "/",
   "/index.html",
-  "/styles.css",
-  "/app.js",
-  "/app-state-core.js",
-  "/pomodoro-core.js",
+  "/src/styles/styles.css",
+  "/src/app.js",
+  "/src/app-state-core.js",
+  "/src/pomodoro-core.js",
+  "/src/state-storage.js",
+  "/src/timer-controller.js",
+  "/src/notifications.js",
+  "/src/plant-renderer.js",
   "/manifest.webmanifest",
   "/assets/icon.svg"
 ];

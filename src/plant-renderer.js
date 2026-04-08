@@ -381,8 +381,24 @@ const PLANT_RENDERERS = {
   begonia: getBegoniaBotanicalSvg,
 };
 
+// Cache for generated SVGs to avoid regenerating on every render
+const svgCache = new Map();
+
 export function getPlantSvg(plantId) {
+  // Check cache first
+  if (svgCache.has(plantId)) {
+    return svgCache.get(plantId);
+  }
+  
+  // Generate and cache
   const renderer = PLANT_RENDERERS[plantId];
-  if (renderer) return renderer();
-  return generatePlantSvg(hashStringToSeed(plantId), familyForBuiltIn(plantId));
+  let svg;
+  if (renderer) {
+    svg = renderer();
+  } else {
+    svg = generatePlantSvg(hashStringToSeed(plantId), familyForBuiltIn(plantId));
+  }
+  
+  svgCache.set(plantId, svg);
+  return svg;
 }

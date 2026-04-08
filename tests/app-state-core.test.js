@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { sanitizeState, applyFocusCompletion, applySkipInterval, switchPlantPreservingProgress } from "../app-state-core.js";
-import { MODES, MINUTES_PER_ROUND } from "../pomodoro-core.js";
+import { sanitizeState, applyFocusCompletion, applySkipInterval, switchPlantPreservingProgress } from "../src/app-state-core.js";
+import { MODES, MINUTES_PER_ROUND } from "../src/pomodoro-core.js";
 
 test("sanitizeState clamps invalid values and normalizes fields", () => {
   const now = 1_700_000_000_000;
@@ -64,8 +64,8 @@ test("applySkipInterval resets streak only for focus mode", () => {
   const focusSkip = applySkipInterval({ mode: "focus", streak: 4, focusSessionsCompleted: 3 });
   assert.equal(focusSkip.streakReset, true);
   assert.equal(focusSkip.state.streak, 0);
-  assert.equal(focusSkip.state.focusSessionsCompleted, 4);
-  assert.equal(focusSkip.focusRoundAdvanced, true);
+  assert.equal(focusSkip.state.focusSessionsCompleted, 3); // Should NOT increment on skip
+  assert.equal(focusSkip.focusRoundAdvanced, false); // Skipping is not a real completion
 
   const shortSkip = applySkipInterval({ mode: "short", streak: 4, focusSessionsCompleted: 4 });
   assert.equal(shortSkip.streakReset, false);

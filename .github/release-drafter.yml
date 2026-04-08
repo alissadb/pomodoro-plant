@@ -1,0 +1,133 @@
+# Release Drafter Configuration
+# Automatically generates release notes and determines version bumps based on PR labels
+# See: https://github.com/release-drafter/release-drafter
+
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+tag-prefix: 'v'
+
+# How each PR change is formatted in the release notes
+change-template: '- $TITLE (#$NUMBER) by @$AUTHOR'
+change-title-escapes: '\<*_&' # Escape special characters
+
+# Message shown when no changes
+no-changes-template: '- No changes'
+
+# Categories for grouping changes (order matters!)
+categories:
+  - title: '🚨 Breaking Changes'
+    labels:
+      - 'breaking'
+  - title: '✨ Features'
+    labels:
+      - 'feature'
+  - title: '🚀 Enhancements'
+    labels:
+      - 'enhancement'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'fix'
+      - 'bug'
+  - title: '⚡ Performance'
+    labels:
+      - 'perf'
+  - title: '📝 Documentation'
+    labels:
+      - 'docs'
+      - 'documentation'
+  - title: '♻️ Refactoring'
+    labels:
+      - 'refactor'
+  - title: '💄 UI/UX'
+    labels:
+      - 'ui'
+  - title: '✅ Tests'
+    labels:
+      - 'test'
+  - title: '🔧 Chore'
+    labels:
+      - 'chore'
+  - title: '⬆️ Dependencies'
+    labels:
+      - 'dependencies'
+  - title: 'Other Changes'
+    labels:
+      - '*'
+
+# PRs with these labels won't be included in release notes
+exclude-labels:
+  - 'skip-release'
+  - 'duplicate'
+  - 'invalid'
+  - 'wontfix'
+
+# Version bump strategy
+# Since we're in 0.x.x (pre-1.0), we use this mapping:
+# - breaking, feature, enhancement → MINOR (0.0.1 → 0.1.0)
+# - everything else → PATCH (0.0.1 → 0.0.2)
+version-resolver:
+  major:
+    labels: [] # Empty - we're staying in 0.x.x for now
+  minor:
+    labels:
+      - 'breaking'
+      - 'feature'
+      - 'enhancement'
+  patch:
+    labels:
+      - 'fix'
+      - 'bug'
+      - 'docs'
+      - 'documentation'
+      - 'refactor'
+      - 'test'
+      - 'chore'
+      - 'ui'
+      - 'perf'
+      - 'dependencies'
+  default: patch # Default to patch if no labels match
+
+# Custom template for the release body
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+
+# Additional settings
+autolabeler:
+  - label: 'documentation'
+    files:
+      - '*.md'
+    branch:
+      - '/docs{0,1}\/.+/'
+  - label: 'dependencies'
+    files:
+      - 'package.json'
+      - 'package-lock.json'
+  - label: 'test'
+    files:
+      - 'tests/**/*'
+
+# Sort PRs by merged date (most recent first)
+sort-by: merged_at
+sort-direction: descending
+
+# Exclude these contributors from release notes (bots)
+exclude-contributors:
+  - 'dependabot'
+  - 'dependabot[bot]'
+  - 'github-actions[bot]'
+
+# Start from current date if no previous releases
+filter-by-commitish: true
+
+# Replacers for formatting PR titles
+replacers:
+  # Remove gitmoji from titles for cleaner release notes
+  - search: '/^(:\w+:|[🎨🐛⚡🔥✨📝🚀✅♻️⬆️⬇️🔧💄🎉🔒📦👷💚📌🔖✏️📄🗑️🚧💬🔊🔇])\s*/g'
+    replace: ''
+  # Capitalize first letter
+  - search: '/^([a-z])/g'
+    replace: '$1'

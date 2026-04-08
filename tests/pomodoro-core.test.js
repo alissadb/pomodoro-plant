@@ -15,7 +15,7 @@ import {
   getNextMode,
   normalizePlantId,
   normalizePlantFamily,
-} from "../pomodoro-core.js";
+} from "../src/pomodoro-core.js";
 
 test("formatTime renders mm:ss with leading zeros", () => {
   assert.equal(formatTime(0), "00:00");

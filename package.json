@@ -1,9 +1,31 @@
 {
   "name": "pomodoro-plant",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
+  "description": "Grow virtual plants while focusing with the Pomodoro technique",
   "scripts": {
     "test": "node --test",
-    "dev": "python3 -m http.server 8000"
-  }
+    "dev": "python3 -m http.server 8000",
+    "version": "node -p 'import(\"./package.json\", { with: { type: \"json\" } }).then(m => `Current version: ${m.default.version}`)'",
+    "changelog": "echo \"View releases: https://github.com/alissadb/pomodoro-plant/releases\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alissadb/pomodoro-plant.git"
+  },
+  "keywords": [
+    "pomodoro",
+    "productivity",
+    "timer",
+    "pwa",
+    "plant",
+    "focus"
+  ],
+  "author": "Alissa de Bruijn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alissadb/pomodoro-plant/issues"
+  },
+  "homepage": "https://github.com/alissadb/pomodoro-plant#readme"
 }

@@ -3,8 +3,10 @@
 Grow a virtual plant while staying focused with the Pomodoro technique.
 
 [![Test and Deploy](https://github.com/alissadb/pomodoro-plant/actions/workflows/deploy.yml/badge.svg)](https://github.com/alissadb/pomodoro-plant/actions/workflows/deploy.yml)
+[![Release](https://img.shields.io/github/v/release/alissadb/pomodoro-plant?label=version&color=blue)](https://github.com/alissadb/pomodoro-plant/releases/latest)
+[![License](https://img.shields.io/github/license/alissadb/pomodoro-plant)](LICENSE)
 
-**🚀 [Live Demo](https://alissadb.github.io/pomodoro-plant/)**
+**[Pomodoro Plant](https://alissadb.github.io/pomodoro-plant/)**
 
 ## Features
 
@@ -36,15 +38,18 @@ npm test
 ## Development
 
 ```
-app.js              # App orchestration (UI + module wiring)
-pomodoro-core.js    # Pure domain functions (modes, stages, goals)
-app-state-core.js   # State transitions + sanitization
-timer-controller.js # Timer loop lifecycle (start/stop/tick)
-state-storage.js    # localStorage adapter (debounced/immediate save)
-notifications.js    # Browser notifications + completion chime
-plant-renderer.js   # Plant SVG rendering (snake, zz, begonia, fallback)
-styles.css          # Design system + visual styling
-tests/              # 28 automated tests
+src/
+├── app.js              # App orchestration (UI + module wiring)
+├── pomodoro-core.js    # Pure domain functions (modes, stages, goals)
+├── app-state-core.js   # State transitions + sanitization
+├── timer-controller.js # Timer loop lifecycle (start/stop/tick)
+├── state-storage.js    # localStorage adapter (debounced/immediate save)
+├── notifications.js    # Browser notifications + completion chime
+├── plant-renderer.js   # Plant SVG rendering (snake, zz, begonia, fallback)
+└── styles/
+    └── styles.css      # Design system + visual styling
+
+tests/                  # 28 automated tests
 ```
 
 ## Architecture Notes
@@ -52,3 +57,7 @@ tests/              # 28 automated tests
 - `app.js` coordinates modules and DOM events, but keeps business rules in core/state modules.
 - `pomodoro-core.js` and `app-state-core.js` remain framework-agnostic and easy to unit test.
 - Rendering, timer, notifications, and persistence are isolated behind dedicated modules to keep the codebase KISS, SOLID, and DRY.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.

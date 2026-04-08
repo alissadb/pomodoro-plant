@@ -38,7 +38,7 @@ export function sanitizeState(parsed, nowMs = Date.now(), historyLimit = 8) {
   let shouldCompleteInterval = false;
 
   if (safe.isRunning && safe.endTime) {
-    const remaining = Math.ceil((safe.endTime - nowMs) / 1000);
+    const remaining = Math.max(0, Math.ceil((safe.endTime - nowMs) / 1000));
     if (remaining <= 0) {
       safe.remainingSeconds = 0;
       safe.isRunning = false;
@@ -73,12 +73,10 @@ export function applySkipInterval(inputState) {
     state: {
       ...inputState,
       streak: shouldReset ? 0 : inputState.streak,
-      focusSessionsCompleted: isFocusRound
-        ? inputState.focusSessionsCompleted + 1
-        : inputState.focusSessionsCompleted,
+      // Don't increment focusSessionsCompleted on skip - user didn't earn it
     },
     streakReset: shouldReset,
-    focusRoundAdvanced: isFocusRound,
+    focusRoundAdvanced: false, // Skipping is not a real completion
   };
 }
 

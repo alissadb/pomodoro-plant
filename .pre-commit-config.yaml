@@ -1,0 +1,79 @@
+---
+# Pre-commit hooks for Pomodoro Plant
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # General file cleanup and validation
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(tests/.*\.snap|.*\.svg)$
+      - id: end-of-file-fixer
+        exclude: ^(tests/.*\.snap|.*\.svg)$
+      - id: check-yaml
+      - id: check-json
+        files: \.(json|webmanifest)$
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # JavaScript/HTML/CSS linting
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.16.0
+    hooks:
+      - id: eslint
+        files: \.(js|mjs)$
+        args: ['--fix']
+        additional_dependencies:
+          - eslint@9.16.0
+          - eslint-config-standard
+          - eslint-plugin-import
+          - eslint-plugin-node
+          - eslint-plugin-promise
+
+  # Prettier for code formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        files: \.(js|mjs|json|html|css|md)$
+        args: ['--write', '--ignore-unknown']
+
+  # Run tests before commit
+  - repo: local
+    hooks:
+      - id: run-tests
+        name: Run Node.js tests
+        entry: npm test
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        verbose: true
+
+  # Gitmoji commit message validation
+  - repo: local
+    hooks:
+      - id: gitmoji-commit-msg
+        name: Check Gitmoji commit message format
+        entry: bash
+        language: system
+        stages:
+          - commit-msg
+        always_run: true
+        pass_filenames: false
+        args:
+          - -c
+          - 'grep -qE "^(✨|🐛|📝|♻️|✅|🔧|⬆️|🔖|👷|🌐|✏️|💄|🚑|⚡|🔒|🎨|🔥|🚨|💡|🧪|🖼️|🔨|🚀|📦|➕|➖|🎉|🚧)" .git/COMMIT_EDITMSG || (echo "Error: Commit message must start with a Gitmoji emoji. See .agents/commit-conventions.md" && exit 1)'
+
+# Global exclusions
+exclude: |
+  (?x)^(
+      \.git/.*|
+      node_modules/.*|
+      .*\.min\.(js|css)$|
+      sw\.js$
+  )$

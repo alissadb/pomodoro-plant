@@ -1,0 +1,70 @@
+name: Auto Publish Release
+
+on:
+  workflow_run:
+    workflows: ["Release Drafter"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    # Only run if Release Drafter succeeded
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Get latest draft release
+        id: get_draft
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: releases } = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            // Find the first draft release
+            const draft = releases.find(r => r.draft === true);
+            
+            if (draft) {
+              console.log(`Found draft release: ${draft.name} (${draft.tag_name})`);
+              return draft.id;
+            } else {
+              console.log('No draft release found');
+              return null;
+            }
+          result-encoding: string
+          
+      - name: Publish draft release
+        if: steps.get_draft.outputs.result != 'null'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const releaseId = ${{ steps.get_draft.outputs.result }};
+            
+            console.log(`Publishing release ID: ${releaseId}`);
+            
+            const { data: release } = await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: releaseId,
+              draft: false
+            });
+            
+            console.log(`✅ Published release: ${release.name}`);
+            console.log(`🏷️  Tag: ${release.tag_name}`);
+            console.log(`🔗 URL: ${release.html_url}`);
+            
+      - name: No draft to publish
+        if: steps.get_draft.outputs.result == 'null'
+        run: |
+          echo "ℹ️  No draft release found to publish"
+          echo "This is normal if:"
+          echo "  - Only docs/chore changes were made"
+          echo "  - PR had 'skip-release' label"
+          echo "  - Release was already published manually"
