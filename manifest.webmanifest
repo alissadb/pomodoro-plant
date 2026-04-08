@@ -1,0 +1,24 @@
+{
+  "name": "Pomodoro Plant",
+  "short_name": "Pom Plant",
+  "description": "Grow virtual plants while focusing with the Pomodoro technique.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7ffe4",
+  "theme_color": "#2f7d4f",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
