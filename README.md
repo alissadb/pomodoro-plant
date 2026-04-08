@@ -42,3 +42,7 @@ app-state-core.js   # State management
 styles.css          # Design & plant visuals
 tests/              # 28 automated tests
 ```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
