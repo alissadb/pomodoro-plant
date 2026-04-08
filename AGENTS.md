@@ -2,6 +2,34 @@
 
 High-signal guidance for working in this repository.
 
+## ⚠️ CRITICAL: Git Workflow
+
+**NEVER push directly to main/master. ALL changes go through feature branches and PRs.**
+
+```bash
+# ✅ CORRECT: Always create a feature branch first
+git checkout -b feature/my-feature
+git commit -m "✨ Add feature"
+git push -u origin feature/my-feature
+gh pr create
+
+# ❌ WRONG: Never commit/push directly to main
+git checkout main
+git commit -m "✨ Add feature"  # BLOCKED
+git push                         # BLOCKED
+```
+
+**When asked to "create a commit and PR":**
+1. Check current branch
+2. If on main → automatically create feature branch
+3. Commit to feature branch
+4. Push feature branch
+5. Create PR to main
+
+See `.agents/git-workflow.md` for full automation details.
+
+---
+
 ## Commands
 
 **Dev server:**
