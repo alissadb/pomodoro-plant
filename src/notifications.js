@@ -44,63 +44,42 @@ function playChord(frequencies, startTime, duration, attackTime = 0.02, releaseT
   });
 }
 
-// Focus complete: Energetic ascending celebration (5.6s)
+// Focus complete: Success chime (2.5s)
 function playFocusCompleteSound() {
   const now = audioContext.currentTime;
-  const noteDuration = 0.5;
-  const spacing = 0.2;
   
-  // Ascending melody: C5 → E5 → G5 → B5 → C6 → E6 → G6
-  const melody = [523.25, 659.25, 783.99, 987.77, 1046.50, 1318.51, 1567.98];
+  // Quick ascending arpeggio: C6 → E6 → G6
+  playNote(1046.50, now, 0.4, 0.01, 0.15, 0.20);      // C6
+  playNote(1318.51, now + 0.25, 0.4, 0.01, 0.15, 0.22); // E6
+  playNote(1567.98, now + 0.5, 0.6, 0.01, 0.2, 0.24);   // G6
   
-  melody.forEach((frequency, index) => {
-    const startTime = now + index * spacing;
-    const duration = index === melody.length - 1 ? 1.0 : noteDuration; // Last note sustained
-    const peakGain = index === melody.length - 1 ? 0.22 : 0.18; // Louder on final note
-    playNote(frequency, startTime, duration, 0.01, 0.15, peakGain);
-  });
-  
-  // Add harmonic richness with subtle chord on final note
-  const finalNoteTime = now + (melody.length - 1) * spacing;
-  playNote(1046.50, finalNoteTime, 1.0, 0.02, 0.2, 0.08); // C6 harmony
+  // Add harmony on final note
+  playNote(1046.50, now + 0.5, 0.6, 0.02, 0.2, 0.10);   // C6 harmony
 }
 
-// Short break complete: Gentle descending chime (5s)
+// Short break complete: Gentle bell (2s)
 function playShortBreakCompleteSound() {
   const now = audioContext.currentTime;
-  const noteDuration = 0.8;
-  const spacing = 0.4;
   
-  // Descending melody: A5 → F5 → D5 → A4 → D5 (back up for hope)
-  const melody = [880.00, 698.46, 587.33, 440.00, 587.33];
-  
-  melody.forEach((frequency, index) => {
-    const startTime = now + index * spacing;
-    const duration = index === melody.length - 1 ? 1.2 : noteDuration; // Last note sustained longer
-    playNote(frequency, startTime, duration, 0.05, 0.2, 0.16);
-  });
+  // Soft descending chime: A5 → F5 → D5
+  playNote(880.00, now, 0.5, 0.04, 0.2, 0.16);         // A5
+  playNote(698.46, now + 0.4, 0.5, 0.04, 0.2, 0.14);   // F5
+  playNote(587.33, now + 0.8, 0.7, 0.05, 0.3, 0.12);   // D5 sustained
 }
 
-// Long break complete: Triumphant fanfare (6.5s)
+// Long break complete: Achievement sound (3s)
 function playLongBreakCompleteSound() {
   const now = audioContext.currentTime;
   
-  // Pattern: Chord → Note → Chord → High note
-  // Intro chord: C5 + E5 (major third)
-  playChord([523.25, 659.25], now, 0.8, 0.01, 0.15, 0.16);
+  // Triumphant chord progression
+  // Major chord: C5 + E5 + G5
+  playChord([523.25, 659.25, 783.99], now, 0.6, 0.01, 0.15, 0.18);
   
-  // Rising melody note: G5
-  playNote(783.99, now + 1.0, 0.6, 0.01, 0.1, 0.20);
+  // Higher octave: C6 + E6
+  playChord([1046.50, 1318.51], now + 0.7, 0.8, 0.01, 0.2, 0.20);
   
-  // Triumphant chord: C6 + E6 (octave higher)
-  playChord([1046.50, 1318.51], now + 1.8, 1.0, 0.01, 0.2, 0.18);
-  
-  // Victory high note: G6 (sustained)
-  playNote(1567.98, now + 3.0, 1.5, 0.02, 0.3, 0.22);
-  
-  // Add extra celebratory notes ascending
-  playNote(1318.51, now + 4.7, 0.4, 0.01, 0.1, 0.18); // E6
-  playNote(1567.98, now + 5.2, 1.0, 0.02, 0.3, 0.24); // G6 final
+  // Victory note: G6
+  playNote(1567.98, now + 1.6, 1.0, 0.02, 0.3, 0.22);
 }
 
 // Main function to play completion sound based on mode
