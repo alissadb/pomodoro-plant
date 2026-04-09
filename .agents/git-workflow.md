@@ -46,7 +46,7 @@ Ask OpenCode to:
 "Create a commit, push, and open a PR"
 ```
 
-OpenCode will automatically create a feature branch if you're on main.
+**Important:** If you're currently on the main branch, first ask OpenCode to create a feature branch, or create one manually before committing.
 
 ---
 
@@ -184,10 +184,10 @@ docs/<description>       # For documentation
 refactor/<description>   # For code refactoring
 ```
 
-**OpenCode Safety Check:**
-- If on main/master, OpenCode will **automatically create a feature branch**
-- Branch name generated from commit message
-- You will **never** accidentally push to main
+**Safety Check:**
+- Always verify you're on a feature branch before committing
+- If on main/master, create a feature branch immediately
+- Branch name should be descriptive of your changes
 
 ---
 
@@ -553,8 +553,8 @@ gh pr checks                  # View CI status
 **OpenCode will:**
 ```
 1. Run: git branch --show-current
-   → If on main: STOP and create feature branch first
-   → Example: git checkout -b fix/timer-race-condition
+   → If on main: WARN user and ask to create feature branch first
+   → If on feature branch: proceed with commit
 
 2. Run: git status
 3. Run: git diff [to understand changes]
@@ -573,9 +573,8 @@ gh pr checks                  # View CI status
 
 **Critical Safety Check:**
 - Step 1 always checks if on main/master
-- If on main, automatically creates feature branch
-- Feature branch name derived from changes or commit message
-- Example: "fix timer bug" → `fix/timer-bug` branch
+- If on main, OpenCode will warn you to create a feature branch first
+- This prevents accidental commits to main
 
 ---
 
@@ -597,7 +596,7 @@ OpenCode follows these safety protocols:
 
 ✅ **Always:**
 - Checks current branch before any operation
-- **Creates feature branch if on main/master** ⚠️
+- **Warns if on main/master and asks to create feature branch** ⚠️
 - Reviews staged files before commit
 - Verifies tests pass
 - Uses Gitmoji conventions
@@ -605,7 +604,7 @@ OpenCode follows these safety protocols:
 - Pushes to feature branch, never to main
 
 ❌ **Never:**
-- Commits directly to main/master ⚠️ **BLOCKED**
+- Commits directly to main/master without explicit override ⚠️ **BLOCKED**
 - Pushes to main/master without PR ⚠️ **BLOCKED**
 - Commits secrets or credentials
 - Force pushes to main/master
@@ -623,8 +622,8 @@ OpenCode follows these safety protocols:
 
 **OpenCode:**
 ```bash
-# 1. Creates feature branch
-git checkout -b fix/localstorage-crash
+# 1. Checks current branch - assumes already on feature branch
+# If on main, will prompt to create one first
 
 # 2. [Makes code changes]
 

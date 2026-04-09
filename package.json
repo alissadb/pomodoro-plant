@@ -7,8 +7,8 @@
   "scripts": {
     "test": "node --test",
     "dev": "python3 -m http.server 8000",
-    "version": "node -p 'import(\"./package.json\", { with: { type: \"json\" } }).then(m => `Current version: ${m.default.version}`)'",
-    "changelog": "echo \"View releases: https://github.com/alissadb/pomodoro-plant/releases\""
+    "version": "node -e \"import('./package.json', {assert:{type:'json'}}).then(m=>console.log('Current version:',m.default.version))\"",
+    "changelog": "gh release list || echo 'View releases: https://github.com/alissadb/pomodoro-plant/releases'"
   },
   "repository": {
     "type": "git",

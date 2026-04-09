@@ -56,8 +56,28 @@ git push -u origin feature/your-feature-name
 
 1. Go to the repository on GitHub
 2. Click "Compare & pull request" button
-3. Fill out the PR template
-4. Submit the PR for review
+3. **Add a label** to categorize your change (see below)
+4. Fill out the PR template
+5. Submit the PR for review
+
+#### PR Labels
+
+**Add ONE label** to your PR to categorize the change and control versioning:
+
+| Label | Use When |
+|-------|----------|
+| `feature` | Adding new functionality |
+| `enhancement` | Improving existing features |
+| `fix` / `bug` | Fixing bugs |
+| `docs` | Documentation only |
+| `refactor` | Code refactoring |
+| `test` | Adding/updating tests |
+| `chore` | Maintenance, dependencies |
+| `ui` | UI/UX changes |
+| `perf` | Performance improvements |
+| `skip-release` | Skip release (WIP, internal changes) |
+
+Labels determine version bumps in automated releases. See [release-workflow.md](./release-workflow.md) for details.
 
 ### 6. After PR is Merged
 
@@ -103,6 +123,7 @@ git reset --hard HEAD
 - [ ] Documentation updated if needed
 - [ ] Commit messages follow Gitmoji convention (see `.agents/commit-conventions.md`)
 - [ ] Branch is up to date with `main`
+- [ ] **PR has appropriate label** (feature, fix, docs, etc.)
 
 ## Testing Your Changes
 

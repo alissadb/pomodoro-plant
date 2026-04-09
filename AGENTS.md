@@ -110,11 +110,14 @@ src/
 
 ## CI/CD
 
+**`.github/workflows/ci.yml`:**
+1. Run tests on PRs to ensure quality before merge
+
 **`.github/workflows/deploy.yml`:**
 1. Run tests on every push to main
 2. Deploy to GitHub Pages only if tests pass
 
-**Other workflows:** `auto-publish.yml`, `release-drafter.yml` (not investigated in detail)
+**Other workflows:** `auto-publish.yml`, `release-drafter.yml` (see `.agents/release-workflow.md` for details)
 
 ## Storage
 
@@ -126,9 +129,10 @@ src/
 
 **Existing guides in `.agents/`:**
 - `commit-conventions.md` – Full Gitmoji reference
-- `pr-guidelines.md` – Git workflow, branch naming
+- `pr-guidelines.md` – Git workflow, branch naming, PR labels
 - `pre-commit-setup.md` – Pre-commit installation details
-- `release-workflow.md` – Not read, likely release process
+- `release-workflow.md` – Release and versioning process
+- `git-workflow.md` – Automated workflow for commit + push + PR creation
 
 **CONTRIBUTING.md** and **README.md** are canonical. Trust them for workflow and architecture overview.
 
