@@ -225,8 +225,8 @@ function addHistory(label) {
   state.history = state.history.slice(0, HISTORY_LIMIT);
 }
 
-function announceIntervalComplete(message) {
-  announceIntervalCompleteUi(els.timerDisplay, message);
+function announceIntervalComplete(message, mode) {
+  announceIntervalCompleteUi(els.timerDisplay, message, mode);
 }
 
 function setMode(mode) {
@@ -262,7 +262,7 @@ function completeCurrentInterval(fromRestore = false) {
   }
 
   if (!fromRestore && completion) {
-    announceIntervalComplete(completion.notification);
+    announceIntervalComplete(completion.notification, completedMode);
   }
 
   setMode(getNextMode(state.mode, state.focusSessionsCompleted));
