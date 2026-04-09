@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Grow virtual plants while focusing with the Pomodoro technique",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test tests/*.test.js",
     "dev": "python3 -m http.server 8000",
     "version": "node -e \"import('./package.json', {assert:{type:'json'}}).then(m=>console.log('Current version:',m.default.version))\"",
     "changelog": "gh release list || echo 'View releases: https://github.com/alissadb/pomodoro-plant/releases'"
