@@ -35,3 +35,7 @@ coverage/
 .env
 .env.local
 .env.*.local
+
+# Agent configuration (local only)
+.agents/
+AGENTS.md
