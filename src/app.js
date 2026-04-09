@@ -592,4 +592,31 @@ if (state.isRunning) {
   timerController.start();
 }
 
+// Expose test functions for sound testing (development only)
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  window.testSounds = {
+    focus: () => announceIntervalComplete("Focus complete!", "focus"),
+    short: () => announceIntervalComplete("Short break complete!", "short"),
+    long: () => announceIntervalComplete("Long break complete!", "long"),
+    all: () => {
+      console.log("🎼 Testing all sounds: Focus → Short (7s) → Long (14s)");
+      window.testSounds.focus();
+      setTimeout(() => window.testSounds.short(), 7000);
+      setTimeout(() => window.testSounds.long(), 14000);
+    },
+    fastForward: (seconds = 3) => {
+      state.remainingSeconds = seconds;
+      console.log(`⏩ Timer fast-forwarded to ${seconds} seconds`);
+    }
+  };
+  
+  console.log("🎵 Sound test functions available!");
+  console.log("Try these commands:");
+  console.log("  testSounds.focus()       - Test focus completion sound");
+  console.log("  testSounds.short()       - Test short break sound");
+  console.log("  testSounds.long()        - Test long break sound");
+  console.log("  testSounds.all()         - Test all sounds in sequence");
+  console.log("  testSounds.fastForward() - Fast-forward timer to 3 seconds");
+}
+
 const urlParams = new URLSearchParams(window.location.search);
