@@ -25,6 +25,7 @@ import {
 import { getPlantSvg } from "./plant-renderer.js";
 
 const STORAGE_KEY = "pomodoro-plant-state-v5";
+const BUTTON_POSITION_KEY = "plant-button-position-v1";
 const HISTORY_LIMIT = 8;
 const DEFAULT_PLANT_ID = "snake";
 const TIMER_TICK_INTERVAL_MS = 250;
@@ -73,7 +74,6 @@ const els = {
   sessionCount: document.getElementById("sessionCount"),
   plantPreviewBtn: document.getElementById("plantPreviewBtn"),
   plantViewHeader: document.getElementById("plantViewHeader"),
-  backToTimerBtn: document.getElementById("backToTimerBtn"),
   miniTimer: document.getElementById("miniTimer"),
   miniTimerMode: document.getElementById("miniTimerMode"),
   miniTimerDisplay: document.getElementById("miniTimerDisplay"),
@@ -389,11 +389,6 @@ function scrollToPlant() {
   plantPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function scrollToTimer() {
-  const timerPanel = document.querySelector('.timer-panel');
-  timerPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
 // Toggle scroll between timer and plant
 function toggleScroll() {
   const timerPanel = document.querySelector('.timer-panel');
@@ -408,15 +403,152 @@ function toggleScroll() {
   if (isTimerVisible) {
     scrollToPlant();
   } else {
-    scrollToTimer();
+    const timerPanel = document.querySelector('.timer-panel');
+    timerPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
 // Floating plant preview button (mobile) - toggles between timer and plant
-els.plantPreviewBtn?.addEventListener('click', toggleScroll);
+// Also supports dragging to reposition
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let buttonStartX = 0;
+let buttonStartY = 0;
 
-// Back to timer button in plant view header (mobile)
-els.backToTimerBtn?.addEventListener('click', scrollToTimer);
+// Save button position to localStorage as percentage of viewport
+function saveButtonPosition(x, y) {
+  try {
+    const percentX = (x / window.innerWidth) * 100;
+    const percentY = (y / window.innerHeight) * 100;
+    localStorage.setItem(BUTTON_POSITION_KEY, JSON.stringify({ x: percentX, y: percentY }));
+  } catch (e) {
+    // localStorage might be disabled or full
+    console.warn('Could not save button position:', e);
+  }
+}
+
+// Restore button position from localStorage
+function restoreButtonPosition() {
+  try {
+    const saved = localStorage.getItem(BUTTON_POSITION_KEY);
+    if (!saved) return;
+    
+    const position = JSON.parse(saved);
+    if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+      return;
+    }
+    
+    // Convert percentage back to pixels
+    const x = (position.x / 100) * window.innerWidth;
+    const y = (position.y / 100) * window.innerHeight;
+    
+    // Validate position is still within bounds
+    const buttonWidth = els.plantPreviewBtn.offsetWidth;
+    const buttonHeight = els.plantPreviewBtn.offsetHeight;
+    const maxX = window.innerWidth - buttonWidth;
+    const maxY = window.innerHeight - buttonHeight;
+    
+    const validX = Math.max(0, Math.min(x, maxX));
+    const validY = Math.max(0, Math.min(y, maxY));
+    
+    // Apply position
+    els.plantPreviewBtn.style.left = `${validX}px`;
+    els.plantPreviewBtn.style.top = `${validY}px`;
+    els.plantPreviewBtn.style.right = 'auto';
+    els.plantPreviewBtn.style.bottom = 'auto';
+  } catch (e) {
+    // Invalid JSON or other error - ignore and use default position
+    console.warn('Could not restore button position:', e);
+  }
+}
+
+function handleDragStart(e) {
+  const touch = e.type.includes('touch') ? e.touches[0] : e;
+  dragStartX = touch.clientX;
+  dragStartY = touch.clientY;
+  
+  // Get current button position
+  const rect = els.plantPreviewBtn.getBoundingClientRect();
+  buttonStartX = rect.left;
+  buttonStartY = rect.top;
+  
+  isDragging = false; // Will be set to true if movement exceeds threshold
+}
+
+function handleDragMove(e) {
+  const touch = e.type.includes('touch') ? e.touches[0] : e;
+  const deltaX = touch.clientX - dragStartX;
+  const deltaY = touch.clientY - dragStartY;
+  
+  // Threshold to distinguish drag from click (5 pixels)
+  if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+    isDragging = true;
+    e.preventDefault(); // Prevent scrolling while dragging
+    
+    // Calculate new position
+    let newX = buttonStartX + deltaX;
+    let newY = buttonStartY + deltaY;
+    
+    // Constrain to viewport boundaries
+    const buttonWidth = els.plantPreviewBtn.offsetWidth;
+    const buttonHeight = els.plantPreviewBtn.offsetHeight;
+    const maxX = window.innerWidth - buttonWidth;
+    const maxY = window.innerHeight - buttonHeight;
+    
+    newX = Math.max(0, Math.min(newX, maxX));
+    newY = Math.max(0, Math.min(newY, maxY));
+    
+    // Apply position
+    els.plantPreviewBtn.style.left = `${newX}px`;
+    els.plantPreviewBtn.style.top = `${newY}px`;
+    els.plantPreviewBtn.style.right = 'auto';
+    els.plantPreviewBtn.style.bottom = 'auto';
+  }
+}
+
+function handleDragEnd(e) {
+  if (isDragging) {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent click event from firing
+    
+    // Save the new position
+    const rect = els.plantPreviewBtn.getBoundingClientRect();
+    saveButtonPosition(rect.left, rect.top);
+  }
+  isDragging = false;
+}
+
+function handleClick(e) {
+  if (!isDragging) {
+    toggleScroll();
+  }
+}
+
+if (els.plantPreviewBtn) {
+  // Restore saved position on load
+  restoreButtonPosition();
+  
+  // Touch events for mobile
+  els.plantPreviewBtn.addEventListener('touchstart', handleDragStart, { passive: true });
+  els.plantPreviewBtn.addEventListener('touchmove', handleDragMove, { passive: false });
+  els.plantPreviewBtn.addEventListener('touchend', handleDragEnd);
+  
+  // Mouse events for desktop
+  els.plantPreviewBtn.addEventListener('mousedown', handleDragStart);
+  els.plantPreviewBtn.addEventListener('mousemove', handleDragMove);
+  els.plantPreviewBtn.addEventListener('mouseup', handleDragEnd);
+  
+  // Click handler (will be prevented if dragging)
+  els.plantPreviewBtn.addEventListener('click', handleClick);
+  
+  // Recalculate position on resize to keep button in bounds
+  window.addEventListener('resize', () => {
+    if (els.plantPreviewBtn) {
+      restoreButtonPosition();
+    }
+  });
+}
 
 // Keyboard shortcuts for power users
 document.addEventListener('keydown', (e) => {

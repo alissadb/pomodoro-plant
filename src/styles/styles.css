@@ -621,26 +621,9 @@ body.mode-long .timer {
   margin: -1.15rem -1.15rem 1rem -1.15rem;
   z-index: 50;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   box-shadow: 0 2px 8px rgba(29, 51, 40, 0.08);
   backdrop-filter: blur(4px);
-}
-
-.back-to-timer-btn {
-  background: transparent;
-  border: none;
-  color: var(--focus);
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  margin-left: -0.5rem;
-  -webkit-tap-highlight-color: transparent;
-  transition: color 150ms ease;
-}
-
-.back-to-timer-btn:active {
-  color: var(--short);
 }
 
 .mini-timer {
