@@ -86,3 +86,18 @@ export function switchPlantPreservingProgress(inputState, plantId) {
     selectedPlantId: normalizePlantId(plantId),
   };
 }
+
+export function resetGrowthAndCycleToFocus(inputState) {
+  return {
+    ...inputState,
+    mode: "focus",
+    remainingSeconds: MODES.focus.seconds,
+    isRunning: false,
+    endTime: null,
+    focusSessionsCompleted: 0,
+    focusedMinutesTotal: 0,
+    history: [],
+    streak: 0,
+    lastCompletedStage: 1,
+  };
+}
