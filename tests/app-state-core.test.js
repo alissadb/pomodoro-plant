@@ -1,7 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { sanitizeState, applyFocusCompletion, applySkipInterval, switchPlantPreservingProgress } from "../src/app-state-core.js";
+import {
+  sanitizeState,
+  applyFocusCompletion,
+  applySkipInterval,
+  switchPlantPreservingProgress,
+  resetGrowthAndCycleToFocus,
+} from "../src/app-state-core.js";
 import { MODES, MINUTES_PER_ROUND } from "../src/pomodoro-core.js";
 
 test("sanitizeState clamps invalid values and normalizes fields", () => {
@@ -178,4 +184,36 @@ test("switchPlantPreservingProgress normalizes invalid plant IDs", () => {
   const input = { selectedPlantId: "begonia" };
   const result = switchPlantPreservingProgress(input, "invalid_plant_123");
   assert.equal(result.selectedPlantId, "snake");
+});
+
+test("resetGrowthAndCycleToFocus clears growth and restarts on focus", () => {
+  const input = {
+    mode: "short",
+    remainingSeconds: 42,
+    isRunning: true,
+    endTime: Date.now() + 42_000,
+    focusSessionsCompleted: 7,
+    focusedMinutesTotal: 175,
+    history: [{ label: "Short break complete", time: "10:15" }],
+    streak: 4,
+    lastCompletedStage: 4,
+    selectedPlantId: "begonia",
+    roundGoal: 12,
+    hasDismissedNotificationPrompt: true,
+  };
+
+  const result = resetGrowthAndCycleToFocus(input);
+
+  assert.equal(result.mode, "focus");
+  assert.equal(result.remainingSeconds, MODES.focus.seconds);
+  assert.equal(result.isRunning, false);
+  assert.equal(result.endTime, null);
+  assert.equal(result.focusSessionsCompleted, 0);
+  assert.equal(result.focusedMinutesTotal, 0);
+  assert.deepEqual(result.history, []);
+  assert.equal(result.streak, 0);
+  assert.equal(result.lastCompletedStage, 1);
+  assert.equal(result.selectedPlantId, "begonia");
+  assert.equal(result.roundGoal, 12);
+  assert.equal(result.hasDismissedNotificationPrompt, true);
 });

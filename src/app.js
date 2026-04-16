@@ -23,6 +23,7 @@ import {
   announceIntervalComplete as announceIntervalCompleteUi,
 } from "./notifications.js";
 import { getPlantSvg } from "./plant-renderer.js";
+import { runResetPlantGrowth } from "./reset-plant-growth.js";
 
 const STORAGE_KEY = "pomodoro-plant-state-v5";
 const BUTTON_POSITION_KEY = "plant-button-position-v1";
@@ -315,16 +316,17 @@ function skipCurrentInterval() {
 }
 
 function resetPlantGrowth() {
-  const confirmed = confirm(
-    "Reset all growth progress? This will clear your focused minutes, sessions, and history. This cannot be undone."
-  );
-  if (!confirmed) return;
+  const result = runResetPlantGrowth({
+    confirmReset: () =>
+      confirm(
+        "Reset all growth progress? This will clear your focused minutes, sessions, and history. This cannot be undone."
+      ),
+    pauseTimer,
+    state,
+  });
+  if (!result.didReset) return;
 
-  state.focusedMinutesTotal = 0;
-  state.focusSessionsCompleted = 0;
-  state.history = [];
-  state.streak = 0;
-  state.lastCompletedStage = 1;
+  state = result.state;
   saveState();
   render();
 }
